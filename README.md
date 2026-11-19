@@ -10,7 +10,7 @@ This repository accompanies a DAC submission and is anonymized for review.
 
 - `cpp/`, `python/`: the tool (C++ core on [slang](https://github.com/MikePopoloski/slang), Python pipeline)
 - `patches/slang.patch`: two changes to slang that the build applies
-- `benchmarks/`: the designs of the paper's evaluation and the exact papercuts arguments for each
+- `benchmarks/`: the designs of the paper's evaluation, the exact papercuts arguments for each, and the final papercuts RTL
 - `synthesis/`: the Yosys/ABC and Fusion Compiler flows and the comparison metric
 
 ## How it works

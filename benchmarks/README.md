@@ -11,11 +11,15 @@ one cut and are the designs reported (`"reported": true` in `designs.json`):
 | Koios | 2 | 2 |
 
 - `designs/<design>/`: the RTL as papercuts read it.
+- `final_rtl/<design>/`: the final papercuts RTL of each reported design, as it
+  was synthesized for the paper (the elaborated design with every kept cut
+  applied, proven equivalent to the original).
 - `includes/`, `extra_includes/`: include directories the arguments name.
 - `designs.json`: one entry per design:
   - `papercuts_args`: the exact arguments of its papercuts run, paths relative
     to this directory;
   - `cuts_kept`, `reported`: how many proven cuts the final design kept;
+  - `final_rtl` (reported designs only): its files in `final_rtl/`;
   - `synthesis` (reported designs only): top, sources and include directories,
     and the Fusion Compiler clocks and flow variant (`synthesis/README.md`).
 

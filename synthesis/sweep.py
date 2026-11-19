@@ -1,11 +1,12 @@
 """Synthesize one benchmark design, original and papercuts RTL, at the paper's nine delay targets.
 
-    python synthesis/sweep.py --tool abc|fc --design NAME --papercuts-outputs DIR --out DIR [--jobs N]
+    python synthesis/sweep.py --tool abc|fc --design NAME --out DIR [--papercuts-outputs RUN] [--jobs N]
 
 NAME is a design in benchmarks/designs.json with cuts kept ("reported": true).
-DIR is the `outputs/` directory of a papercuts run on that design (run with the
-design's `papercuts_args` from benchmarks/); the papercuts RTL is its
-`consolidated_sources/joint/<top>_consolidated.sv`.
+The papercuts RTL is the paper's final RTL for the design (its `final_rtl` in
+designs.json), or, with --papercuts-outputs, the
+`consolidated_sources/joint/<top>_consolidated.sv` of a papercuts run's
+`outputs/` directory RUN (run with the design's `papercuts_args`).
 
 As a useful delay target differs by design, the original is first run at a
 1 ps target (ABC: `abc -D 1`; FC: a 1 ps clock) and its achieved delay is L.
@@ -89,7 +90,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--tool", choices=("abc", "fc"), required=True)
     ap.add_argument("--design", required=True)
-    ap.add_argument("--papercuts-outputs", required=True)
+    ap.add_argument("--papercuts-outputs", help="a papercuts run's outputs/ (default: the paper's final RTL)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--jobs", type=int, default=4)
     a = ap.parse_args()
@@ -98,11 +99,15 @@ def main():
     if entry is None or not entry["reported"]:
         sys.exit(f"{a.design}: not a reported design in benchmarks/designs.json")
     syn = entry["synthesis"]
-    pc = os.path.join(os.path.abspath(a.papercuts_outputs), "consolidated_sources", "joint",
-                      f"{syn['top']}_consolidated.sv")
-    if not os.path.exists(pc):
-        sys.exit(f"{pc}: no papercuts RTL; run papercuts on the design first")
-    variants = {"orig": [os.path.join(BENCH, s) for s in syn["sources"]], "papercuts": [pc]}
+    if a.papercuts_outputs:
+        pc = [os.path.join(os.path.abspath(a.papercuts_outputs), "consolidated_sources", "joint",
+                           f"{syn['top']}_consolidated.sv")]
+    else:
+        pc = [os.path.join(BENCH, f) for f in entry["final_rtl"]]
+    for f in pc:
+        if not os.path.exists(f):
+            sys.exit(f"{f}: no papercuts RTL")
+    variants = {"orig": [os.path.join(BENCH, s) for s in syn["sources"]], "papercuts": pc}
     run = run_abc if a.tool == "abc" else run_fc
     out = os.path.abspath(a.out)
     os.makedirs(out, exist_ok=True)

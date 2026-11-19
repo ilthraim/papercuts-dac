@@ -36,13 +36,15 @@ compared in the paper.
 ## Example
 
 ```bash
-# papercuts on the design (benchmarks/README.md), then:
 export ASAP7_LIB=<dir with the five asap7sc7p5t_*_RVT_TT_nldm_*.lib files>
 export YOSYS=<yosys with the slang plugin>
-python synthesis/sweep.py --tool abc --design opencores__ss_pcm \
-    --papercuts-outputs benchmarks/outputs --out sweeps/ss_pcm_abc
+python synthesis/sweep.py --tool abc --design opencores__ss_pcm --out sweeps/ss_pcm_abc
 python synthesis/compare.py sweeps/*/results.jsonl
 ```
+
+The papercuts side is the paper's final RTL (`benchmarks/final_rtl/`). To
+synthesize the output of your own papercuts run instead, add
+`--papercuts-outputs <its outputs/ directory>`.
 
 For Fusion Compiler, `--tool fc` with `fc_shell` on `PATH` and `FC_ASAP7_LIB`
 set to the library directory.
