@@ -1,0 +1,51 @@
+[build-system]
+requires = [
+    "scikit-build-core>=0.8",
+    # Must match slang's own pyproject: pypercuts and pyslang have to be built
+    # against the same nanobind so SyntaxTree can cross between them, and stub
+    # generation imports both, which needs the split-mode runtime.
+    "nanobind>=3.0.1,<4",
+    "nanobind-backend>=1.0",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "papercuts"
+version = "0.1.0"
+description = "Prove which parts of an RTL design are redundant, with sequential equivalence checking"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # Runtime for both extensions (nanobind split mode).
+    "nanobind-backend>=1.0",
+    # The repair's hitting set (papercuts.repair).
+    "z3-solver>=4.15.4.0",
+]
+
+[tool.scikit-build]
+cmake.source-dir = "."
+cmake.build-type = "Release"
+# Only our component: slang's own `pylib` rules assume a pyslang-only wheel and
+# would put pyslang's files at the root of this one (CMakeLists.txt installs the
+# pyslang package itself).
+install.components = ["papercuts_py"]
+
+[tool.scikit-build.wheel]
+packages = ["python/papercuts"]
+
+[tool.uv]
+cache-dir = "./.uv_cache"
+
+[tool.ruff]
+# Allow lines to be as long as 100.
+line-length = 100
+
+[tool.uv.sources]
+
+[tool.pyright]
+pythonPlatform = "Linux"
+extraPaths = ["python"]
+# pyslang.ast/.syntax/... exist only as stubs beside pyslang.abi3.so; at runtime
+# pyslang/__init__.py aliases them from the extension. Types resolve fine, but
+# every import would otherwise warn "could not be resolved from source".
+reportMissingModuleSource = "none"

@@ -1,0 +1,66 @@
+diff --git a/bindings/python/ASTBindings.cpp b/bindings/python/ASTBindings.cpp
+index 9d50721ec..3ec491d23 100644
+--- a/bindings/python/ASTBindings.cpp
++++ b/bindings/python/ASTBindings.cpp
+@@ -151,6 +151,18 @@ void registerAST(nb::module_& m) {
+     nb::class_<ASTContext>(m, "ASTContext")
+         .def(nb::init<const Scope&, LookupLocation, bitmask<ASTFlags>>(), "scope"_a,
+              "lookupLocation"_a, "flags"_a = ASTFlags::None)
++        .def(
++            "__init__",
++            // Scope-bearing symbols (e.g. InstanceBodySymbol) are not Python
++            // subclasses of Scope under nanobind; accept them directly, as the
++            // EvalContext binding above does.
++            [](ASTContext* self, const Symbol& symbol, LookupLocation lookupLocation,
++               bitmask<ASTFlags> flags) {
++                if (!symbol.isScope())
++                    throw std::invalid_argument("Symbol must be a scope to build an ASTContext");
++                new (self) ASTContext(symbol.as<Scope>(), lookupLocation, flags);
++            },
++            "scope"_a, "lookupLocation"_a, "flags"_a = ASTFlags::None, nb::keep_alive<1, 2>())
+         .def_ro("scope", &ASTContext::scope)
+         .def_ro("lookupIndex", &ASTContext::lookupIndex)
+         .def_ro("flags", &ASTContext::flags)
+diff --git a/source/syntax/SyntaxRewriter.cpp b/source/syntax/SyntaxRewriter.cpp
+index 8944ab475..6e4b6264e 100644
+--- a/source/syntax/SyntaxRewriter.cpp
++++ b/source/syntax/SyntaxRewriter.cpp
+@@ -36,6 +36,20 @@ struct CloneVisitor {
+         return triviaBuffer.copy(alloc);
+     }
+ 
++    // Resolve a replacement node before it is spliced into the cloned tree.
++    SyntaxNode* resolveReplacement(SyntaxNode* rep) {
++        for (;;) {
++            auto it = commits.removeOrReplace.find(rep);
++            if (it == commits.removeOrReplace.end())
++                break;
++            auto* replaceChange = std::get_if<ReplaceChange>(&it->second);
++            if (!replaceChange || replaceChange->second == rep)
++                break;
++            rep = replaceChange->second;
++        }
++        return rep->visit(*this);
++    }
++
+ #ifdef _MSC_VER
+ #    pragma warning(push)
+ #    pragma warning(disable : 4127) // conditional expression is constant
+@@ -105,7 +119,7 @@ struct CloneVisitor {
+             if (auto it = commits.removeOrReplace.find(child);
+                 it != commits.removeOrReplace.end()) {
+                 if (auto replaceChange = std::get_if<ReplaceChange>(&it->second)) {
+-                    listBuffer.push_back(replaceChange->second);
++                    listBuffer.push_back(resolveReplacement(replaceChange->second));
+                 }
+                 else {
+                     skipSeparator = true; // remove separator related to removed node
+@@ -183,7 +197,7 @@ struct CloneVisitor {
+ 
+         if (auto it = commits.removeOrReplace.find(child); it != commits.removeOrReplace.end()) {
+             if (auto replaceChange = std::get_if<ReplaceChange>(&it->second)) {
+-                cloned.setChild(dstIndex, replaceChange->second);
++                cloned.setChild(dstIndex, resolveReplacement(replaceChange->second));
+             }
+             else {
+                 static SyntaxNode* emptyNode = nullptr;

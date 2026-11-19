@@ -1,0 +1,1845 @@
+#!/usr/bin/env python3
+#
+# SPDX-FileCopyrightText: Michael Popoloski
+# SPDX-License-Identifier: MIT
+
+"""Re-emit SystemVerilog from a live slang elaboration, via pyslang.
+
+Unrolls generate loops, resolves parameters, folds constant subexpressions, and
+makes conversions explicit by reconstructing source from the *elaborated*
+design. Works from a live slang
+elaboration (via pyslang) rather than a `slang --ast-json` dump: the live AST
+keeps every module instance's body individually walkable, whereas the JSON dump
+deduplicates identical instance bodies, so a hierarchical reference into the
+2nd+ unrolled instance (e.g. stage[1].u_add.sum) is unrecoverable there. Here it
+resolves, because pyslang exposes each instance.
+
+Library entry point (used by the papercuts pipeline):
+    elaborate(files, *, flatten=True, ignore=()) -> str
+    elaborate_design(...) -> ElaboratedDesign   # same, plus the top module name
+
+CLI:
+    elaborator.py design.sv [more.sv ...] [--flatten] [--ignore MOD] [-o out.sv]
+
+Modes:
+  default   generate blocks emit as `if (1) begin : stage_1 ... end`; hierarchical
+            references are rewritten to the flattened labels (stage_1.partial).
+  --flatten generate blocks are dissolved into module scope with mangled names
+            (stage[1].partial -> stage_1_partial); collisions are detected and
+            refused.
+  fold      fully-constant subexpressions are resolved to their value, so a
+  (default) genvar folded into `i * 10` no longer emits `0 * 10` but `32'd0`;
+            references that survive in the output (module parameters, signals)
+            are left symbolic. Disable with --no-fold-constants.
+
+Any AST construct not handled raises EmitError (fail-hard) so that nothing is
+silently dropped.
+"""
+
+import argparse
+import fnmatch
+import re
+import sys
+from dataclasses import dataclass
+
+import hashlib
+
+import pyslang
+from pyslang.ast import ASTContext, Compilation, CompilationOptions, InstanceSymbol, LookupLocation
+from pyslang.parsing import PreprocessorOptions
+from pyslang.syntax import SyntaxTree
+
+from papercuts import pragmas
+
+INDENT = "    "
+
+
+class EmitError(Exception):
+    """Raised when the emitter encounters an AST node it cannot handle."""
+
+
+class _LiveRef(Exception):
+    """Internal: short-circuits the constant-fold guard on the first live ref."""
+
+
+# Expression kinds worth attempting to constant-fold. These are the compound
+# forms where unrolling a generate loop leaves junk arithmetic (e.g. `0 * 10`)
+# once the genvar has been folded to a literal but the surrounding operator has
+# not. Leaf forms (literals, NamedValue) are deliberately excluded: literals are
+# already folded, and NamedValue is handled by its own inlining logic.
+FOLDABLE_KINDS = {
+    "BinaryOp", "UnaryOp", "ConditionalOp", "ElementSelect", "RangeSelect",
+    "Concatenation", "Replication", "MemberAccess",
+}
+
+
+# IEEE 1800-2017 Annex B reserved keywords. A name that is one of these, or is not
+# a simple identifier, came from an escaped identifier (`\\opcode[0] `) and must be
+# re-emitted escaped (EPFL netlists, written by ABC, name every port that way).
+SV_KEYWORDS = frozenset("""
+accept_on alias always always_comb always_ff always_latch and assert assign assume
+automatic before begin bind bins binsof bit break buf bufif0 bufif1 byte case casex
+casez cell chandle checker class clocking cmos config const constraint context
+continue cover covergroup coverpoint cross deassign default defparam design disable
+dist do edge else end endcase endchecker endclass endclocking endconfig endfunction
+endgenerate endgroup endinterface endmodule endpackage endprimitive endprogram
+endproperty endspecify endsequence endtable endtask enum event eventually expect
+export extends extern final first_match for force foreach forever fork forkjoin
+function generate genvar global highz0 highz1 if iff ifnone ignore_bins
+illegal_bins implements implies import incdir include initial inout input inside
+instance int integer interconnect interface intersect join join_any join_none
+large let liblist library local localparam logic longint macromodule matches
+medium modport module nand negedge nettype new nexttime nmos nor noshowcancelled
+not notif0 notif1 null or output package packed parameter pmos posedge primitive
+priority program property protected pull0 pull1 pulldown pullup
+pulsestyle_ondetect pulsestyle_onevent pure rand randc randcase randsequence rcmos
+real realtime ref reg reject_on release repeat restrict return rnmos rpmos rtran
+rtranif0 rtranif1 s_always s_eventually s_nexttime s_until s_until_with scalared
+sequence shortint shortreal showcancelled signed small soft solve specify
+specparam static string strong strong0 strong1 struct super supply0 supply1
+sync_accept_on sync_reject_on table tagged task this throughout time timeprecision
+timeunit tran tranif0 tranif1 tri tri0 tri1 triand trior trireg type typedef union
+unique unique0 unsigned until until_with untyped use uwire var vectored virtual void
+wait wait_order wand weak weak0 weak1 while wildcard wire with within wor xnor xor
+""".split())
+_SIMPLE_ID = re.compile(r"[A-Za-z_][A-Za-z0-9_$]*")
+
+
+# Longest generated module name; see Emitter._make_module_name.
+MAX_MODULE_NAME = 200
+
+
+def ident(name: str) -> str:
+    """`name` as SystemVerilog source: as-is when it is a plain identifier, else
+    escaped (backslash, the name, a terminating space)."""
+    if _SIMPLE_ID.fullmatch(name) and name not in SV_KEYWORDS:
+        return name
+    return f"\\{name} "
+
+
+def ident_path(path: str) -> str:
+    """A dotted hierarchical reference, each component escaped as needed. Only
+    for names this emitter joined with "." itself (unflattened generate scopes)."""
+    return ".".join(ident(c) for c in path.split("."))
+
+
+UNARY_PREFIX = {
+    "Plus": "+", "Minus": "-", "BitwiseNot": "~", "BitwiseAnd": "&",
+    "BitwiseOr": "|", "BitwiseXor": "^", "BitwiseNand": "~&", "BitwiseNor": "~|",
+    "BitwiseXnor": "~^", "LogicalNot": "!", "Preincrement": "++",
+    "Predecrement": "--",
+}
+UNARY_POSTFIX = {"Postincrement": "++", "Postdecrement": "--"}
+BINARY_OPS = {
+    "Add": "+", "Subtract": "-", "Multiply": "*", "Divide": "/", "Mod": "%",
+    "BinaryAnd": "&", "BinaryOr": "|", "BinaryXor": "^", "BinaryXnor": "~^",
+    "Equality": "==", "Inequality": "!=", "CaseEquality": "===",
+    "CaseInequality": "!==", "GreaterThanEqual": ">=", "GreaterThan": ">",
+    "LessThanEqual": "<=", "LessThan": "<", "WildcardEquality": "==?",
+    "WildcardInequality": "!=?", "LogicalAnd": "&&", "LogicalOr": "||",
+    "LogicalImplication": "->", "LogicalEquivalence": "<->",
+    "LogicalShiftLeft": "<<", "LogicalShiftRight": ">>",
+    "ArithmeticShiftLeft": "<<<", "ArithmeticShiftRight": ">>>", "Power": "**",
+}
+EDGE_PREFIX = {"None": "", "PosEdge": "posedge ", "NegEdge": "negedge ",
+               "BothEdges": "edge "}
+PROCEDURE_KEYWORD = {
+    "Initial": "initial", "Final": "final", "Always": "always",
+    "AlwaysComb": "always_comb", "AlwaysLatch": "always_latch",
+    "AlwaysFF": "always_ff",
+}
+UNIQUE_PRIORITY = {"None_": "", "Unique": "unique ", "Unique0": "unique0 ",
+                   "Priority": "priority "}
+CASE_KEYWORD = {"Normal": "case", "WildcardJustZ": "casez",
+                "WildcardXOrZ": "casex", "Inside": "case"}
+DIRECTION = {"In": "input", "Out": "output", "InOut": "inout", "Ref": "ref"}
+
+
+def kind(node):
+    """Enum name of a symbol/expression/statement kind, e.g. 'BinaryOp'."""
+    return node.kind.name
+
+
+def tname(t):
+    """Slang type string (same format the JSON emitter consumes)."""
+    return str(t)
+
+
+class Emitter:
+    def __init__(self):
+        self.lines = []
+        self.level = 0
+        self.flatten = False
+        # When true, resolve fully-constant subexpressions to their folded value
+        # (via pyslang's constant evaluator) instead of re-emitting the raw
+        # arithmetic. Cleans up generate-loop junk like `0 * 10` -> `32'd0`.
+        self.fold_constants = True
+        # Scope used to build the EvalContext for constant folding; set per module
+        # in _emit_module (the instance body is a valid slang Scope). None outside
+        # a module, where folding is skipped.
+        self._eval_body = None
+        self._cur_names = {}  # plain names for the module being emitted (_name_map_for)
+        self._name_maps = {}
+        self._top_paths = set()
+        # Definition names to emit verbatim (from original syntax) instead of
+        # specializing per instance. Set from the --ignore CLI option.
+        self.ignore = set()
+        # Populated by run(): the module names actually emitted verbatim -- the
+        # ignored definitions plus their whole subtree (the opaque region).
+        self.verbatim = set()
+        # symbol.hierarchicalPath -> flattened path ("stage_1.partial" scoped,
+        # "stage_1_partial" flattened). Keyed by hierarchicalPath (not id()):
+        # pyslang returns a fresh Python wrapper per access, so object identity
+        # is unstable, but hierarchicalPath is a stable unique key per symbol.
+        self.path_map = {}
+        # symbol.hierarchicalPath -> constant value string, for in-generate
+        # localparams (genvar + user localparams) inlined at use sites.
+        self.param_subst = {}
+        # instance.hierarchicalPath -> emitted (specialized) module name. One
+        # distinct module is emitted per instance, so a submodule instantiated
+        # with different params yields different modules.
+        self.module_names = {}
+        # Rendered text of the current compound-assignment target, used to emit
+        # an LValueReference (slang's stand-in for the lvalue inside "x OP= y").
+        self._lvalue = None
+        # Dead-code pruning: hierarchicalPaths of symbols to omit from emission
+        # (dead nets/vars + their sole-target drivers, plus declarations that
+        # became unused). Populated by the deadcode prune pass; empty => emit
+        # everything unchanged.
+        self.prune_paths = set()
+        # Bit-level dead-code pruning: hierarchicalPath -> set of dead bit indices
+        # for PARTIALLY-dead signals (some bits read, some not). An assignment
+        # whose whole written bit-range lies inside the dead set is dropped; the
+        # declaration is kept (live bits remain). Empty => no bit-level pruning.
+        self.prune_bits = {}
+
+    # --- output helpers ------------------------------------------------------
+
+    def emit(self, text=""):
+        self.lines.append(INDENT * self.level + text if text else "")
+
+    def result(self):
+        return "\n".join(self.lines) + "\n"
+
+    # --- type rendering (mirrors emit_sv_from_ast.py) ------------------------
+
+    def split_type(self, type_str):
+        type_str = str(type_str)
+        if "$" in type_str:
+            prefix, _, suffix = type_str.partition("$")
+            return self._simplify_typename(prefix.strip()), suffix.strip()
+        return self._simplify_typename(type_str.strip()), ""
+
+    def _simplify_typename(self, s):
+        if "}" in s:
+            return s[: s.rindex("}") + 1]
+        if any(c in s for c in "[] "):
+            return s
+        if "::" in s:
+            return s
+        if "." in s:
+            return s.rsplit(".", 1)[-1]
+        return s
+
+    def decl(self, type_str, name, qualifier="", escape_only=False):
+        prefix, suffix = self.split_type(type_str)
+        parts = [p for p in (qualifier, prefix) if p]
+        head = " ".join(parts)
+        # lstrip only: an escaped name ends in the space that terminates it
+        shown = ident(name) if escape_only else self._name(name)
+        return f"{head} {shown}{suffix}".lstrip()
+
+    # --- names ---------------------------------------------------------------
+
+    # Escaped identifiers (`\\opcode[0] `, every EPFL netlist) are emitted as plain
+    # ones. The cutter and muxer rebuild expressions and names from tokens, and an
+    # escaped name only ends at the whitespace that belongs to the NEXT token, so
+    # a rebuilt `(\\a[0])` swallows the parenthesis and a companion
+    # `n[3]_papercuts` loses its escape; the muxer crashed outright. Within a
+    # module every name that is not a plain identifier, or is a keyword, maps to
+    # a sanitized unique one. The top's ports keep their names (the gate and
+    # every check match ports by name) and the body reaches them through plain
+    # aliases (_emit_port_aliases).
+
+    def _name_map_for(self, body):
+        """{emitted-as-is name: plain name} for one module body, deterministic, so
+        a parent connecting to this body by port name agrees with its header."""
+        key = body.hierarchicalPath
+        if key in self._name_maps:
+            return self._name_maps[key]
+        members = list(body)
+        pm = {}
+        self._build_path_map(members, "", pm, "_" if self.flatten else ".")
+        raws = set(pm.values()) | {m.name for m in members if kind(m) in ("Port", "Parameter", "Subroutine")
+                                   and not _empty_port(m)}
+        if not self.flatten:
+            raws = {c for r in raws for c in r.split(".")}
+        taken = {r for r in raws if _SIMPLE_ID.fullmatch(r) and r not in SV_KEYWORDS}
+        out = {}
+        for r in sorted(raws - taken):
+            base = re.sub(r"[^A-Za-z0-9_$]", "_", r)
+            if not re.match(r"[A-Za-z_]", base):
+                base = "_" + base
+            cand, n = base, 1
+            while cand in taken or cand in SV_KEYWORDS:
+                n += 1
+                cand = f"{base}_e{n}"
+            taken.add(cand)
+            out[r] = cand
+        self._name_maps[key] = out
+        return out
+
+    def _name(self, raw):
+        """`raw` (a name as this emitter would print it) in the current module."""
+        if not self.flatten and "." in raw:
+            return ".".join(self._name(c) for c in raw.split("."))
+        mapped = self._cur_names.get(raw)
+        return mapped if mapped is not None else ident(raw)
+
+    # --- top-level -----------------------------------------------------------
+
+    def run(self, compilation: Compilation):
+        root = compilation.getRoot()
+
+        # Compilation-unit scoped declarations (packages first).
+        for pkg in compilation.getPackages():
+            if pkg.name in ("std",):  # builtin
+                continue
+            self._emit_package(pkg)
+            self.emit()
+
+        # `$unit`-scope declarations (typedefs, params) declared at file scope
+        # rather than inside a package. These are referenced by the specialized
+        # modules (e.g. a struct type used as a parameter type), so they must be
+        # emitted before the modules that use them, or the output won't compile.
+        if self._emit_compilation_units(root):
+            self.emit()
+
+        # One emission unit per instance -- no dedup by definition name. Two
+        # instances of the same definition with different parameter values emit
+        # two distinct, specialized modules. Each unit is either
+        #   ("mod", emitted_name, body)      -- specialized, walked and re-emitted
+        #   ("verbatim", def_name, text)     -- ignored def, original source text
+        self.module_names = {}
+        self._top_paths = {inst.hierarchicalPath for inst in root.topInstances}
+        self._name_maps = {}
+        units = []
+        used_names = set()
+        verbatim_seen = set()
+        for inst in root.topInstances:
+            self._collect_bodies(inst, units, used_names, verbatim_seen, top=True)
+
+        # Record the opaque region (ignored defs + their subtrees) so callers can
+        # skip cutting everything emitted verbatim, not just the top-level ignores.
+        self.verbatim = {u[1] for u in units if u[0] == "verbatim"}
+
+        for i, unit in enumerate(units):
+            if unit[0] == "verbatim":
+                self.emit(unit[2])
+            else:
+                self._emit_module(unit[1], unit[2])
+            if i != len(units) - 1:
+                self.emit()
+        return self.result()
+
+    def _collect_bodies(self, inst, units, used_names, verbatim_seen, top=False):
+        # An ignored definition is emitted verbatim and forms an opaque boundary:
+        # we don't specialize it or anything beneath it. The instance is wired at
+        # its site using the original definition name.
+        if inst.body.name in self.ignore:
+            self.module_names[inst.hierarchicalPath] = inst.body.name
+            self._collect_verbatim(inst, units, verbatim_seen)
+            return
+
+        emitted_name = self._make_module_name(inst, top, used_names)
+        self.module_names[inst.hierarchicalPath] = emitted_name
+        body = inst.body
+        units.append(("mod", emitted_name, body))
+        for m in body:
+            if kind(m) == "Instance":
+                self._collect_bodies(m, units, used_names, verbatim_seen)
+            elif kind(m) in ("GenerateBlockArray", "GenerateBlock"):
+                self._collect_from_scope(m, units, used_names, verbatim_seen)
+
+    def _collect_from_scope(self, scope, units, used_names, verbatim_seen):
+        for m in scope:
+            if kind(m) == "Instance":
+                self._collect_bodies(m, units, used_names, verbatim_seen)
+            elif kind(m) in ("GenerateBlockArray", "GenerateBlock"):
+                self._collect_from_scope(m, units, used_names, verbatim_seen)
+
+    def _collect_verbatim(self, inst, units, verbatim_seen):
+        # Emit the ignored module's original definition text, plus the verbatim
+        # text of every definition reachable beneath it (deduped by name) so the
+        # opaque subtree still compiles -- its instantiations reference children
+        # by their original names, which specialized emission would have renamed.
+        def_name = inst.body.name
+        if def_name in verbatim_seen:
+            return
+        verbatim_seen.add(def_name)
+        definition = inst.body.definition
+        units.append(("verbatim", def_name, str(definition.syntax).strip()))
+        self._collect_verbatim_children(inst.body, units, verbatim_seen)
+
+    def _collect_verbatim_children(self, scope, units, verbatim_seen):
+        for m in scope:
+            k = kind(m)
+            if k == "Instance":
+                child = m.body.name
+                if child not in verbatim_seen:
+                    verbatim_seen.add(child)
+                    units.append(("verbatim", child,
+                                  str(m.body.definition.syntax).strip()))
+                self._collect_verbatim_children(m.body, units, verbatim_seen)
+            elif k in ("GenerateBlockArray", "GenerateBlock"):
+                self._collect_verbatim_children(m, units, verbatim_seen)
+
+    def _make_module_name(self, inst, top, used_names):
+        # Top instances keep the plain definition name; nested instances are
+        # named by their hierarchical path so identical definitions with
+        # different parameterizations don't collide.
+        base = inst.body.name if top else self._mangle_path(inst.hierarchicalPath)
+        # The name becomes a file name (<name>.sv, and <name>_muxed.sv /
+        # _consolidated beside it), which may not exceed 255 bytes; deep paths
+        # did (koios clstm_like: "File name too long"). Long names keep a prefix
+        # and a hash of the whole path, so they stay deterministic and distinct.
+        if len(base) > MAX_MODULE_NAME:
+            digest = hashlib.sha1(base.encode()).hexdigest()[:8]
+            base = f"{base[:MAX_MODULE_NAME - 9]}_{digest}"
+        name, n = base, 1
+        while name in used_names:
+            n += 1
+            name = f"{base}_{n}"
+        used_names.add(name)
+        return name
+
+    def _mangle_path(self, hp):
+        # A path through an escaped instance name (`top.\\u[0] `) keeps its
+        # backslash and space in slang's hierarchicalPath; a mangled module name
+        # must still be a plain identifier.
+        flat = hp.replace(".", "_").replace("[", "_").replace("]", "")
+        return re.sub(r"[^A-Za-z0-9_$]", "", flat.replace(" ", ""))
+
+    # --- packages ------------------------------------------------------------
+
+    def _emit_package(self, pkg):
+        self.emit(f"package {pkg.name};")
+        self.level += 1
+        for m in pkg:
+            k = kind(m)
+            if k == "TypeAlias":
+                self._emit_typedef(m)
+            elif k == "Parameter":
+                self.emit(self._parameter_decl(m) + ";")
+            elif k == "TransparentMember":
+                continue  # enum values, emitted by their typedef
+            elif k in ("Genvar",):
+                continue
+            else:
+                raise EmitError(f"unsupported package member kind: {k!r}")
+        self.level -= 1
+        self.emit("endpackage")
+
+    def _capture(self, fn, *args):
+        """Run an emit-producing call and take its lines back off ``self.lines``.
+
+        Lets a declaration be rendered through the normal emit path (so it picks
+        up indentation and every type-rendering quirk) without committing it to
+        the output yet."""
+        start = len(self.lines)
+        fn(*args)
+        captured = self.lines[start:]
+        del self.lines[start:]
+        return captured
+
+    def _emit_compilation_units(self, root):
+        # Emit `$unit`-scope members at top level (no package wrapper), MERGED
+        # across every compilation unit. Handles the same declaration kinds as a
+        # package body; other members (imports, etc.) are dropped because
+        # elaboration has already resolved every reference to the emitted
+        # declaration. Returns True if anything was emitted.
+        #
+        # slang builds one CompilationUnitSymbol per addSyntaxTree -- i.e. per
+        # input file -- so a header carrying `$unit`-scope decls that is
+        # `include`d by N files yields N identical copies. That is correct during
+        # elaboration (each CU is its own scope, matching `-sfcu` semantics), but
+        # the blob emitted here is ONE file, where the repeats are redefinition
+        # errors. Merge by name, keeping first-occurrence order.
+        #
+        # Order is safe: a decl can't reference a name its own CU declares later,
+        # so the first occurrence of a dependent decl is always preceded by what
+        # it depends on.
+        seen = {}    # name -> rendered lines
+        order = []   # names, first-occurrence order
+        for cu in getattr(root, "compilationUnits", ()):
+            for m in cu:
+                k = kind(m)
+                if k == "TypeAlias":
+                    rendered = self._capture(self._emit_typedef, m)
+                elif k == "Parameter":
+                    rendered = self._capture(
+                        lambda p: self.emit(self._parameter_decl(p) + ";"), m)
+                else:
+                    continue  # TransparentMember (enum values), Genvar, imports
+                name = m.name
+                if name in seen:
+                    # Same name, different text is NOT a duplicate to drop: two
+                    # CUs can legitimately render one name differently (different
+                    # `define state at include time, a differently-folded
+                    # parameter). Picking one silently would change the blob's
+                    # semantics relative to the original design, so refuse.
+                    if seen[name] != rendered:
+                        raise EmitError(
+                            f"conflicting `$unit`-scope declarations of {name!r} "
+                            f"across compilation units:\n"
+                            + "\n".join(seen[name])
+                            + "\nvs\n"
+                            + "\n".join(rendered)
+                        )
+                    continue
+                seen[name] = rendered
+                order.append(name)
+
+        for name in order:
+            self.lines.extend(seen[name])
+        return bool(order)
+
+    # --- modules -------------------------------------------------------------
+
+    def _emit_module(self, emitted_name, body):
+        name = emitted_name
+        members = list(body)
+
+        # The instance body is the scope for constant folding within this module.
+        # A fixed per-module scope suffices: expressions in nested generate blocks
+        # have already had their genvars folded to literals, so lookups never
+        # actually cross into the nested scope during evaluation.
+        self._eval_body = body
+
+        self.path_map = {}
+        gen_sep = "_" if self.flatten else "."
+        self._build_path_map(members, "", self.path_map, gen_sep)
+        if self.flatten:
+            self._check_flatten_collisions(name)
+
+        self._cur_names = self._name_map_for(body)
+        is_top = body.hierarchicalPath in self._top_paths
+
+        params = [m for m in members if kind(m) == "Parameter" and m.isPortParam]
+        ports = [m for m in members if kind(m) == "Port" and not _empty_port(m)]
+
+        if params:
+            self.emit(f"module {ident(name)} #(")
+            self.level += 1
+            for i, p in enumerate(params):
+                comma = "," if i != len(params) - 1 else ""
+                self.emit(self._parameter_decl(p) + comma)
+            self.level -= 1
+            self.emit(") (" if ports else ") ();")
+        elif ports:
+            self.emit(f"module {ident(name)} (")
+        else:
+            self.emit(f"module {ident(name)} ();")
+
+        if ports:
+            self.level += 1
+            for i, port in enumerate(ports):
+                comma = "," if i != len(ports) - 1 else ""
+                self.emit(self._port_decl(port, escape_only=is_top) + comma)
+            self.level -= 1
+            self.emit(");")
+
+        self.level += 1
+        if is_top:
+            self._emit_port_aliases(ports)
+        self._emit_body_members(members)
+        self.level -= 1
+        self.emit("endmodule")
+
+    def _emit_body_members(self, members):
+        port_names = {m.name for m in members if kind(m) == "Port"}
+        for m in members:
+            k = kind(m)
+            if k == "Port":
+                continue
+            if k == "Parameter" and m.isPortParam:
+                continue
+            if k in ("Net", "Variable") and m.name in port_names:
+                # declared by the port header; a non-ANSI `wire [55:0] y = ...;`
+                # beside `output [55:0] y;` still drives it (opencores double_fpu)
+                if getattr(m, "initializer", None) is not None:
+                    if k == "Variable":
+                        raise EmitError(f"initializer on variable port {m.name!r} is not re-emitted")
+                    self.emit(f"assign {self._name(self._decl_name(m))} = {self.expr(m.initializer)};")
+                continue
+            if k == "Genvar":
+                continue
+            self._emit_member(m)
+
+    # --- dead-code pruning helpers -------------------------------------------
+
+    def _lvalue_root_symbol(self, expr):
+        """Root symbol written by an lvalue expression, climbing selects /
+        member-access / conversions to the base reference. Returns None for
+        anything without a single root (e.g. a concatenation lvalue), so such
+        targets are never treated as prunable."""
+        k = kind(expr)
+        while k in ("ElementSelect", "RangeSelect", "MemberAccess", "Conversion"):
+            expr = expr.operand if k == "Conversion" else expr.value
+            if expr is None:
+                return None
+            k = kind(expr)
+        return getattr(expr, "symbol", None)
+
+    def _is_pruned_target(self, assignment):
+        """True if this assignment's sole lvalue is a pruned (dead) signal."""
+        if not self.prune_paths:
+            return False
+        sym = self._lvalue_root_symbol(assignment.left)
+        if sym is None:
+            return False
+        return getattr(sym, "hierarchicalPath", None) in self.prune_paths
+
+    def _const_index(self, expr):
+        """Constant integer value of a bit/range-select index expression, or
+        None if it is not a compile-time constant (folded constants expose
+        ``.constant``; a bare index literal carries its value in ``.value``)."""
+        c = getattr(expr, "constant", None)
+        if c is not None:
+            try:
+                return int(str(c))
+            except Exception:
+                pass
+        if kind(expr) == "IntegerLiteral":
+            try:
+                return int(str(expr.value))
+            except Exception:
+                pass
+        return None
+
+    def _lvalue_written_bits(self, left):
+        """(root symbol, set of written bit indices) for a constant bit/range
+        select over a plain signal; (symbol, None) when the written range can't
+        be pinned to constant bits (whole signal, variable/part-select index);
+        (None, None) if not a simple signal lvalue. Only a definite constant
+        bit set is ever eligible for bit-level pruning."""
+        k = kind(left)
+        if k == "ElementSelect" and kind(left.value) == "NamedValue":
+            idx = self._const_index(left.selector)
+            return left.value.symbol, ({idx} if idx is not None else None)
+        if k == "RangeSelect" and kind(left.value) == "NamedValue":
+            lo = self._const_index(left.left)
+            hi = self._const_index(left.right)
+            if lo is not None and hi is not None and left.selectionKind.name == "Simple":
+                return left.value.symbol, set(range(min(lo, hi), max(lo, hi) + 1))
+            return left.value.symbol, None
+        if k == "NamedValue":
+            return left.symbol, None
+        return None, None
+
+    def _is_bit_pruned(self, assignment):
+        """True if this assignment writes ONLY dead bits of a partially-dead
+        signal (so it can be dropped while the declaration and live-bit drivers
+        stay)."""
+        if not self.prune_bits:
+            return False
+        sym, bits = self._lvalue_written_bits(assignment.left)
+        if sym is None or bits is None:
+            return False
+        dead = self.prune_bits.get(getattr(sym, "hierarchicalPath", None))
+        return dead is not None and bits <= dead
+
+    def _stmt_all_dead(self, stmt):
+        """True if emitting ``stmt`` would produce only assignments to pruned
+        (dead) signals -- i.e. it can be dropped without losing any live logic.
+        Conservative: unknown / side-effecting statements (calls, ``$display``,
+        etc.) return False so they are always kept."""
+        if (not self.prune_paths and not self.prune_bits) or stmt is None:
+            return False
+        k = kind(stmt)
+        if k == "ExpressionStatement":
+            e = stmt.expr
+            return kind(e) == "Assignment" and (
+                self._is_pruned_target(e) or self._is_bit_pruned(e)
+            )
+        if k == "List":
+            subs = list(stmt.list)
+            return bool(subs) and all(self._stmt_all_dead(s) for s in subs)
+        if k == "Block":
+            body = getattr(stmt, "body", None)
+            return self._stmt_all_dead(body) if body is not None else False
+        if k == "Timed":
+            return self._stmt_all_dead(stmt.stmt)
+        if k == "Conditional":
+            ift = self._stmt_all_dead(stmt.ifTrue)
+            iff = getattr(stmt, "ifFalse", None)
+            return ift and (iff is None or self._stmt_all_dead(iff))
+        if k == "Case":
+            items_dead = all(self._stmt_all_dead(it.stmt) for it in stmt.items)
+            dflt = getattr(stmt, "defaultCase", None)
+            return items_dead and (dflt is None or self._stmt_all_dead(dflt))
+        if k == "ForLoop":
+            return self._stmt_all_dead(stmt.body)
+        return False
+
+    def _emit_member(self, m):
+        k = kind(m)
+        # Dead-code pruning: drop dead signal declarations, their sole-target
+        # continuous-assign drivers, and declarations that became unused. Port
+        # params never reach here (emitted in the header) and are excluded from
+        # the prune set anyway, so a matching Parameter is always a localparam.
+        if self.prune_paths or self.prune_bits:
+            if k in ("Net", "Variable", "Parameter", "TypeAlias") and \
+                    getattr(m, "hierarchicalPath", None) in self.prune_paths:
+                return
+            if k == "ContinuousAssign" and (
+                self._is_pruned_target(m.assignment)
+                or self._is_bit_pruned(m.assignment)
+            ):
+                return
+        if k == "Parameter":
+            self.emit(self._parameter_decl(m) + ";")
+        elif k == "Net":
+            self._emit_net(m)
+        elif k == "Variable":
+            self._emit_variable(m)
+        elif k == "TypeAlias":
+            self._emit_typedef(m)
+        elif k == "ContinuousAssign":
+            self.emit("assign " + self._assignment_inner(m.assignment) + ";")
+        elif k == "ProceduralBlock":
+            self._emit_procedural_block(m)
+        elif k == "Instance":
+            self._emit_instance(m)
+        elif k == "PrimitiveInstance":
+            self._emit_primitive(m)
+        elif k == "GenerateBlockArray":
+            self._emit_generate_array(m)
+        elif k == "GenerateBlock":
+            self._emit_generate_block(m)
+        elif k == "Subroutine":
+            self._emit_subroutine(m)
+        elif k == "WildcardImport":
+            self.emit(f"import {m.packageName}::*;")
+        elif k == "ExplicitImport":
+            self.emit(f"import {m.packageName}::{m.importName};")
+        elif k in ("TransparentMember", "EmptyMember", "Genvar", "StatementBlock"):
+            return
+        elif k in ("DefParam", "SpecifyBlock", "Specparam"):
+            # A defparam's override is already in every specialized module's
+            # parameter values (vtr ch_intrinsics, opencores sbd_sqrt_fp); a
+            # specify block and its specparams carry timing only. Neither has a
+            # place in the elaborated design; the gate proves it equivalent.
+            return
+        else:
+            raise EmitError(f"unsupported module member kind: {k!r}")
+
+    # --- gate primitives -----------------------------------------------------
+
+    # Gate primitives (gate-level netlists such as ISCAS85) are emitted as the
+    # continuous assigns they are equivalent to, which makes their logic
+    # cuttable like any other expression. The elaboration gate proves the
+    # rewrite on every run. Tristate (bufif/notif), switch and user-defined
+    # primitives, primitive arrays and drive strengths have no such plain form
+    # and are refused.
+    _GATE_OPS = {"and": ("&", False), "nand": ("&", True), "or": ("|", False),
+                 "nor": ("|", True), "xor": ("^", False), "xnor": ("^", True)}
+
+    def _emit_primitive(self, m):
+        name = m.primitiveType.name
+        if list(m.arrayPath):
+            raise EmitError(f"unsupported primitive instance array: {name} {m.arrayName}")
+        if any(s is not None for s in (m.driveStrength or ())):
+            raise EmitError(f"unsupported drive strength on primitive {name} {m.name}")
+        conns = list(m.portConnections)
+
+        def target(c):  # output terminals arrive as `out = <empty>` assignments
+            return self.expr(c.left if kind(c) == "Assignment" else c)
+
+        if name in self._GATE_OPS:
+            op, invert = self._GATE_OPS[name]
+            body = f" {op} ".join(f"({self.expr(c)})" for c in conns[1:])
+            self.emit(f"assign {target(conns[0])} = {f'~({body})' if invert else body};")
+        elif name in ("buf", "not"):
+            src = f"({self.expr(conns[-1])})"
+            for c in conns[:-1]:
+                self.emit(f"assign {target(c)} = {src if name == 'buf' else '~' + src};")
+        else:
+            raise EmitError(f"unsupported primitive: {name} {m.name}")
+
+    # --- declarations --------------------------------------------------------
+
+    def _parameter_decl(self, p):
+        keyword = "localparam" if p.isLocalParam else "parameter"
+        body = self.decl(tname(p.type), p.name, qualifier=keyword)
+        body += " = " + self._render_constant(p.value)
+        return body
+
+    def _port_decl(self, port, escape_only=False):
+        qualifier = DIRECTION.get(port.direction.name, "")
+        return self.decl(tname(port.type), port.name, qualifier=qualifier, escape_only=escape_only)
+
+    def _emit_port_aliases(self, ports):
+        """The top keeps its escaped port names; the body uses plain aliases."""
+        for port in ports:
+            plain = self._cur_names.get(port.name)
+            if plain is None:
+                continue
+            d = port.direction.name
+            if d == "In":
+                self.emit(self.decl(tname(port.type), port.name, qualifier="wire")
+                          + f" = {ident(port.name)};")
+            elif d == "Out":
+                self.emit(self.decl(tname(port.type), port.name) + ";")
+                self.emit(f"assign {ident(port.name)} = {plain};")
+            else:
+                raise EmitError(f"unsupported escaped {d.lower()} top port {port.name!r}")
+
+    def _decl_name(self, sym):
+        if self.flatten:
+            mapped = self.path_map.get(sym.hierarchicalPath)
+            if mapped is not None:
+                return mapped
+        return sym.name
+
+    def _emit_net(self, net):
+        net_type = net.netType.name if hasattr(net, "netType") else "wire"
+        body = self.decl(tname(net.type), self._decl_name(net), qualifier=net_type)
+        if getattr(net, "initializer", None) is not None:
+            body += " = " + self.expr(net.initializer)
+        self.emit(body + ";")
+
+    def _emit_variable(self, var):
+        body = self.decl(tname(var.type), self._decl_name(var))
+        if getattr(var, "initializer", None) is not None:
+            body += " = " + self.expr(var.initializer)
+        self.emit(body + ";")
+
+    def _emit_typedef(self, alias):
+        canonical = alias.canonicalType
+        ck = kind(canonical)
+        if ck == "Enum" or type(canonical).__name__ == "EnumType":
+            base = tname(canonical.baseType) if hasattr(canonical, "baseType") else ""
+            base_str = (" " + base) if base else ""
+            values = []
+            for ev in canonical:
+                values.append(f"{ev.name} = {self._render_constant(ev.value)}")
+            self.emit(f"typedef enum{base_str} {{ {', '.join(values)} }} {alias.name};")
+        elif ck in ("PackedStructType", "UnpackedStructType"):
+            # Render the struct from its fields rather than string-munging slang's
+            # type repr: an unpacked-array member serializes as `logic[7:0]$[0:1]`,
+            # where the `$` separates the element type from the unpacked dimension,
+            # which belongs after the member name. decl() already relocates it.
+            self.emit(self._struct_typedef(alias.name, canonical))
+        else:
+            target = tname(canonical)
+            if "}" in target:  # union / anonymous aggregate body: keep verbatim
+                self.emit(f"typedef {self._simplify_typename(target)} {alias.name};")
+            else:  # scalar or unpacked-array typedef -- move any `$` dims after name
+                prefix, suffix = self.split_type(target)
+                self.emit(f"typedef {prefix} {alias.name}{suffix};")
+
+    def _struct_typedef(self, name, canonical):
+        keyword = "struct packed" if kind(canonical) == "PackedStructType" else "struct"
+        if keyword == "struct packed" and getattr(canonical, "isSigned", False):
+            keyword += " signed"
+        fields = [self.decl(tname(f.type), f.name) + ";"
+                  for f in canonical if kind(f) == "Field"]
+        return f"typedef {keyword} {{ {' '.join(fields)} }} {name};"
+
+    # --- instances -----------------------------------------------------------
+
+    def _emit_instance(self, inst):
+        body = inst.body
+        def_name = ident(self.module_names[inst.hierarchicalPath])
+        inst_name = self._name(self._decl_name(inst))
+        # a verbatim (excluded) child keeps its own names; an emitted one has a map
+        child = {} if body.name in self.ignore else self._name_map_for(body)
+
+        def child_name(n):
+            return child.get(n) or ident(n)
+
+        params = [m for m in body if kind(m) == "Parameter" and m.isPortParam]
+        conns = [c for c in inst.portConnections if not _empty_port(c.port)]  # see _empty_port
+
+        if params:
+            self.emit(f"{def_name} #(")
+            self.level += 1
+            for i, p in enumerate(params):
+                comma = "," if i != len(params) - 1 else ""
+                self.emit(f".{child_name(p.name)}({self._render_constant(p.value)}){comma}")
+            self.level -= 1
+            self.emit(f") {inst_name} (")
+        else:
+            self.emit(f"{def_name} {inst_name} (")
+
+        self.level += 1
+        for i, conn in enumerate(conns):
+            comma = "," if i != len(conns) - 1 else ""
+            pname = child_name(conn.port.name)
+            text = self._port_conn_expr(conn)
+            self.emit(f".{pname}({text or ''}){comma}")
+        self.level -= 1
+        self.emit(");")
+
+    def _port_conn_expr(self, conn):
+        ex = conn.expression
+        if ex is None:
+            return None
+        # Output/inout ports serialize as an Assignment of the connected lvalue
+        # to an EmptyArgument placeholder; unwrap to the lvalue.
+        if kind(ex) == "Assignment":
+            return self.expr(ex.left)
+        if kind(ex) == "EmptyArgument":
+            return None
+        return self.expr(ex)
+
+    # --- hierarchical path map ----------------------------------------------
+
+    def _build_path_map(self, members, prefix, out, gen_sep):
+        for m in members:
+            k = kind(m)
+            if k in ("Net", "Variable"):
+                out[m.hierarchicalPath] = prefix + m.name
+            elif k == "Instance":
+                out[m.hierarchicalPath] = prefix + m.name
+                self._build_path_map(list(m.body), prefix + m.name + ".",
+                                     out, gen_sep)
+            elif k == "GenerateBlockArray":
+                for idx, blk in self._array_blocks(m):
+                    label = self._gen_block_label(blk, array_name=m.name, index=idx)
+                    self._build_path_map(list(blk), prefix + label + gen_sep,
+                                         out, gen_sep)
+            elif k == "GenerateBlock":
+                if getattr(m, "isUninstantiated", False):
+                    continue
+                label = self._gen_block_label(m)
+                self._build_path_map(list(m), prefix + label + gen_sep,
+                                     out, gen_sep)
+
+    # --- renames, for the gate -------------------------------------------------
+
+    def rename_map(self, compilation):
+        """What the emitted design names differently from the original, below the
+        top: (kind, original path, emitted path), kind "instance" or "signal",
+        paths relative to the top. Flattening a generate scope renames what it
+        holds (`STAGEN[0].stage` -> `STAGEN_0_stage`); Jasper pairs uninitialized
+        flops, blackboxes and X sources between the copies by name, so without
+        this map the gate leaves them unpaired and free on each side."""
+        out = []
+        for top in compilation.getRoot().topInstances:
+            self._renames(top, "", "", out)
+        return out
+
+    def _renames(self, inst, spec, imp, out):
+        body = inst.body
+        if body.name in self.ignore:
+            return  # emitted verbatim, names untouched
+        pm = {}
+        self._build_path_map(list(body), "", pm, "_" if self.flatten else ".")
+        names = self._name_map_for(body)
+        base = inst.hierarchicalPath + "."
+
+        def emitted(path):
+            if self.flatten:
+                return names.get(path, path)
+            return ".".join(names.get(c, c) for c in path.split("."))
+
+        children = {c.hierarchicalPath: c for c in self._scope_instances(body)}
+        inside = tuple(hp + "." for hp in children)  # a child's own names: its recursion
+        for hp, path in pm.items():
+            if hp.startswith(inside):
+                continue
+            rel, new = hp[len(base):], emitted(path)
+            if rel != new:
+                out.append(("instance" if hp in children else "signal", spec + rel, imp + new))
+        for hp, child in children.items():
+            self._renames(child, spec + hp[len(base):] + ".", imp + emitted(pm[hp]) + ".", out)
+
+    def _scope_instances(self, scope):
+        for m in scope:
+            k = kind(m)
+            if k == "Instance":
+                yield m
+            elif k == "GenerateBlockArray":
+                for _, blk in self._array_blocks(m):
+                    yield from self._scope_instances(blk)
+            elif k == "GenerateBlock" and not getattr(m, "isUninstantiated", False):
+                yield from self._scope_instances(m)
+
+    def _check_flatten_collisions(self, module_name):
+        by_name = {}
+        for hpath, path in self.path_map.items():
+            if "." in path:
+                continue
+            by_name.setdefault(path, set()).add(hpath)
+        collisions = {n: s for n, s in by_name.items() if len(s) > 1}
+        if collisions:
+            detail = "; ".join(f"{n!r} <- {len(s)} symbols"
+                               for n, s in sorted(collisions.items()))
+            raise EmitError(
+                f"--flatten would create colliding module-scope names in "
+                f"{module_name!r}: {detail}. Rename the source symbol(s) or emit "
+                f"without --flatten."
+            )
+
+    # --- generate ------------------------------------------------------------
+
+    def _array_blocks(self, node):
+        """Yield (index, block) for the instantiated GenerateBlock children of a
+        GenerateBlockArray. Robust across pyslang versions: iterating the array
+        may also yield non-block members (e.g. the loop GenvarSymbol), which we
+        skip. The index prefers the block's own array index attribute and falls
+        back to a running counter; the same helper is used by both the emitter
+        and the path-map builder so the labels always agree."""
+        counter = 0
+        for child in node:
+            if kind(child) != "GenerateBlock":
+                continue
+            if getattr(child, "isUninstantiated", False):
+                continue
+            idx = getattr(child, "constructIndex", None)
+            if idx is None:
+                idx = getattr(child, "arrayIndex", None)
+            if idx is None:
+                idx = counter
+            counter += 1
+            yield idx, child
+
+    def _gen_block_label(self, node, array_name=None, index=None):
+        if array_name is not None:
+            return self._sanitize_label(f"{array_name}[{index}]")
+        return self._sanitize_label(node.name or "gen")
+
+    def _emit_generate_array(self, node):
+        for idx, blk in self._array_blocks(node):
+            self._emit_generate_block(blk, array_name=node.name, index=idx)
+
+    def _emit_generate_block(self, node, array_name=None, index=None):
+        if getattr(node, "isUninstantiated", False):
+            return
+        if not self.flatten:
+            label = self._gen_block_label(node, array_name, index)
+            self.emit(f"if (1) begin : {label}")
+            self.level += 1
+        members = list(node)
+        registered = []
+        for m in members:
+            if kind(m) == "Parameter" and m.isLocalParam:
+                self.param_subst[m.hierarchicalPath] = self._render_constant(m.value)
+                registered.append(m.hierarchicalPath)
+        for m in members:
+            if kind(m) == "Parameter" and m.isLocalParam:
+                continue
+            self._emit_member(m)
+        for hp in registered:
+            del self.param_subst[hp]
+        if not self.flatten:
+            self.level -= 1
+            self.emit("end")
+
+    def _sanitize_label(self, label):
+        return label.replace("[", "_").replace("]", "")
+
+    # --- subroutines ---------------------------------------------------------
+
+    def _emit_subroutine(self, node):
+        is_func = node.subroutineKind.name == "Function"
+        # Modules are emitted without a lifetime, so static is already the default
+        # here. Writing `static` explicitly is legal SV, but Fusion Compiler's
+        # reader rejects it (VER-721); only automatic needs saying.
+        life = "automatic " if getattr(node, "defaultLifetime", None) is not None \
+            and node.defaultLifetime.name == "Automatic" else ""
+        port_list = ", ".join(self._formal_arg(a) for a in node.arguments)
+        if is_func:
+            ret = self.split_type(tname(node.returnType))[0]
+            self.emit(f"function {life}{ret} {node.name}({port_list});")
+        else:
+            self.emit(f"task {life}{node.name}({port_list});")
+        self.level += 1
+        self._emit_stmt_body(node.body)
+        self.level -= 1
+        self.emit("endfunction" if is_func else "endtask")
+
+    def _formal_arg(self, arg):
+        direction = DIRECTION.get(arg.direction.name, "input")
+        body = self.decl(tname(arg.type), arg.name, qualifier=direction)
+        return body
+
+    # --- statements ----------------------------------------------------------
+
+    def _emit_procedural_block(self, node):
+        keyword = PROCEDURE_KEYWORD.get(node.procedureKind.name)
+        if keyword is None:
+            raise EmitError(f"unsupported procedure kind: {node.procedureKind.name!r}")
+        body = node.body
+        # Drop a block that, after pruning, drives only dead signals (its whole
+        # body would render empty). _stmt_all_dead is conservative -- a block
+        # with any live assignment or side effect ($display, etc.) is kept.
+        inner = body.stmt if kind(body) == "Timed" else body
+        if self._stmt_all_dead(inner):
+            return
+        if kind(body) == "Timed":
+            timing = self.timing(body.timing)
+            self._emit_statement_open(body.stmt, prefix=f"{keyword} {timing} ")
+        else:
+            self._emit_statement_open(body, prefix=f"{keyword} ")
+
+    def _emit_statement_open(self, stmt, prefix=""):
+        # A sub-statement that prunes to nothing: keep syntax valid where a
+        # statement is required after a prefix (if/else/case-item/for), emit
+        # nothing otherwise.
+        if self._stmt_all_dead(stmt):
+            if prefix:
+                self.emit(prefix + ";")
+            return
+        if kind(stmt) in ("Block", "List"):
+            self.emit(prefix + "begin")
+            self.level += 1
+            self._emit_stmt_body(stmt)
+            self.level -= 1
+            self.emit("end")
+        elif prefix:
+            self.emit(prefix + "begin")
+            self.level += 1
+            self.statement(stmt)
+            self.level -= 1
+            self.emit("end")
+        else:
+            self.statement(stmt)
+
+    def _emit_stmt_body(self, stmt):
+        if stmt is None:
+            return
+        k = kind(stmt)
+        if k == "List":
+            for s in stmt.list:
+                if self._stmt_all_dead(s):
+                    continue
+                self.statement(s)
+        elif k == "Block":
+            self._emit_stmt_body(stmt.body)
+        elif not self._stmt_all_dead(stmt):
+            self.statement(stmt)
+
+    def statement(self, stmt):
+        handler = getattr(self, f"_stmt_{kind(stmt)}", None)
+        if handler is None:
+            raise EmitError(f"unsupported statement kind: {kind(stmt)!r}")
+        handler(stmt)
+
+    def _stmt_Block(self, stmt):
+        self.emit("begin")
+        self.level += 1
+        self._emit_stmt_body(stmt.body if hasattr(stmt, "body") else stmt)
+        self.level -= 1
+        self.emit("end")
+
+    def _stmt_List(self, stmt):
+        for s in stmt.list:
+            if self._stmt_all_dead(s):
+                continue
+            self.statement(s)
+
+    def _stmt_Empty(self, stmt):
+        self.emit(";")
+
+    def _stmt_ExpressionStatement(self, stmt):
+        # Belt-and-braces: a dead-target assignment reached directly (not via the
+        # list/branch filters) still emits nothing.
+        if kind(stmt.expr) == "Assignment" \
+                and (self._is_pruned_target(stmt.expr) or self._is_bit_pruned(stmt.expr)):
+            return
+        self.emit(self.expr(stmt.expr) + ";")
+
+    def _stmt_VariableDeclaration(self, stmt):
+        var = stmt.symbol
+        qualifier = ""
+        if getattr(var, "initializer", None) is not None:
+            qualifier = {"Automatic": "automatic", "Static": "static"}.get(
+                var.lifetime.name if hasattr(var, "lifetime") else "", "")
+        d = self.decl(tname(var.type), var.name, qualifier=qualifier)
+        if getattr(var, "initializer", None) is not None:
+            d += " = " + self.expr(var.initializer)
+        self.emit(d + ";")
+
+    def _stmt_Conditional(self, stmt, prefix=""):
+        # unique/priority covers the whole else-if chain, but slang records it only
+        # on the head. An `else if` must therefore stay flat: wrapping it in
+        # begin/end (as _emit_statement_open does) starts a new statement outside
+        # the chain. A source `else begin if ... end` arrives as a Block and stays
+        # wrapped.
+        check = UNIQUE_PRIORITY[stmt.check.name]
+        cond = " &&& ".join(self.expr(c.expr) for c in stmt.conditions)
+        self._emit_statement_open(stmt.ifTrue, prefix=f"{prefix}{check}if ({cond}) ")
+        iff = getattr(stmt, "ifFalse", None)
+        if iff is None:
+            return
+        if kind(iff) == "Conditional" and not self._stmt_all_dead(iff):
+            self._stmt_Conditional(iff, prefix="else ")
+        else:
+            self._emit_statement_open(iff, prefix="else ")
+
+    def _stmt_Case(self, stmt):
+        # The flavour and the unique/priority qualifier both change what matches.
+        # Emitting a bare `case` turned casez's `?` labels (folded to z) into
+        # literal z matches.
+        keyword = CASE_KEYWORD[stmt.condition.name]
+        check = UNIQUE_PRIORITY[stmt.check.name]
+        inside = " inside" if stmt.condition.name == "Inside" else ""
+        self.emit(f"{check}{keyword} ({self.expr(stmt.expr)}){inside}{self._case_pragma(stmt)}")
+        self.level += 1
+        for item in stmt.items:
+            labels = ", ".join(self.expr(e) for e in item.expressions)
+            self._emit_statement_open(item.stmt, prefix=f"{labels}: ")
+        if getattr(stmt, "defaultCase", None) is not None:
+            self._emit_statement_open(stmt.defaultCase, prefix="default: ")
+        self.level -= 1
+        self.emit("endcase")
+
+    _CASE_PRAGMA = re.compile(r"(?://|/\*)\s*(synopsys|synthesis)\s+((?:full_case|parallel_case)(?:\s+(?:full_case|parallel_case))*)")
+
+    def _case_pragma(self, stmt):
+        """`// synopsys full_case parallel_case` on the original case line, which
+        the tools honor: uncovered values are don't-cares instead of a latch. It
+        is a comment -- trivia of the first item -- so a re-emitted case lost it,
+        and the elaborated design inferred a latch the original does not have
+        (opencores datetime: gate cex; 39 dataset designs use the pragma)."""
+        syn = getattr(stmt, "syntax", None)
+        items = getattr(syn, "items", None) if syn is not None else None
+        if not items:
+            return ""
+        m = self._CASE_PRAGMA.search(str(items[0]).split(":", 1)[0])
+        return f"  // {m.group(1)} {m.group(2)}" if m else ""
+
+    def _stmt_ForLoop(self, stmt):
+        inits = ", ".join(self._assignment_inner(i) for i in stmt.initializers)
+        stop = self.expr(stmt.stopExpr) if getattr(stmt, "stopExpr", None) else ""
+        steps = ", ".join(self.expr(s) for s in stmt.steps)
+        self._emit_statement_open(stmt.body, prefix=f"for ({inits}; {stop}; {steps}) ")
+
+    def _stmt_Return(self, stmt):
+        if getattr(stmt, "expr", None) is not None:
+            self.emit(f"return {self.expr(stmt.expr)};")
+        else:
+            self.emit("return;")
+
+    def _stmt_Timed(self, stmt):
+        self._emit_statement_open(stmt.stmt, prefix=self.timing(stmt.timing) + " ")
+
+    # --- timing --------------------------------------------------------------
+
+    def timing(self, node):
+        k = kind(node)
+        if k == "SignalEvent":
+            return f"@({EDGE_PREFIX.get(node.edge.name, '')}{self.expr(node.expr)})"
+        if k == "EventList":
+            return "@(" + " or ".join(self._event_inner(e) for e in node.events) + ")"
+        if k == "Delay":
+            return f"#{self.expr(node.expr)}"
+        if k == "ImplicitEvent":
+            return "@*"
+        raise EmitError(f"unsupported timing control kind: {k!r}")
+
+    def _event_inner(self, node):
+        if kind(node) != "SignalEvent":
+            raise EmitError(f"unsupported event kind: {kind(node)!r}")
+        return f"{EDGE_PREFIX.get(node.edge.name, '')}{self.expr(node.expr)}"
+
+    # --- expressions ---------------------------------------------------------
+
+    def _assignment_inner(self, node):
+        left = self.expr(node.left)
+        if node.isCompound:
+            base = BINARY_OPS.get(node.op.name)
+            if base is None:
+                raise EmitError(f"unsupported compound assign op: {node.op.name!r}")
+            # slang models "x OP= y" as right = BinaryOp(OP, LValueReference, y).
+            # Recover y and re-emit the compound operator (preserves it and
+            # avoids evaluating the lvalue twice).
+            rhs = node.right
+            if kind(rhs) == "BinaryOp" and kind(rhs.left) == "LValueReference":
+                return f"{left} {base}= {self.expr(rhs.right)}"
+            # Fallback: render the LValueReference as the lvalue itself, giving an
+            # equivalent plain assignment "x = (x OP y)".
+            saved, self._lvalue = self._lvalue, left
+            try:
+                return f"{left} = {self.expr(rhs)}"
+            finally:
+                self._lvalue = saved
+        op = "<=" if node.isNonBlocking else "="
+        return f"{left} {op} {self.expr(node.right)}"
+
+    def expr(self, node):
+        if node is None:
+            raise EmitError("encountered null expression")
+        if self.fold_constants and kind(node) in FOLDABLE_KINDS:
+            folded = self._try_fold(node)
+            if folded is not None:
+                return folded
+        handler = getattr(self, f"_expr_{kind(node)}", None)
+        if handler is None:
+            raise EmitError(f"unsupported expression kind: {kind(node)!r}")
+        return handler(node)
+
+    # --- constant folding ----------------------------------------------------
+
+    def _has_live_ref(self, node):
+        """True if the subtree references a symbol that survives in the emitted
+        output as a runtime value -- i.e. a signal (net/variable/port). Literals,
+        genvars, in-generate localparams (present in ``param_subst``), and module
+        parameters are all resolved constants in the elaborated design and are
+        therefore foldable; a signal reference (``din + 0``) is not, so such a
+        subtree must stay symbolic."""
+        subst = self.param_subst
+
+        def check(n):
+            k = n.kind.name
+            if k in ("NamedValue", "HierarchicalValue"):
+                sym = n.symbol
+                if sym.hierarchicalPath in subst:
+                    return
+                # Genvars and parameters are resolved to concrete constants in
+                # the elaborated design (each instance is specialized to one
+                # parameter value), so they do not count as live references.
+                if sym.kind.name in ("Genvar", "Parameter"):
+                    return
+                raise _LiveRef
+            if k == "LValueReference":
+                raise _LiveRef
+            if _unsized_unknown(n):
+                raise _LiveRef  # slang's fold would zero-extend it (_lit)
+
+        try:
+            node.visit(check)
+        except _LiveRef:
+            return True
+        return False
+
+    def _try_fold(self, node):
+        """Return the folded constant text for ``node`` if it is fully constant
+        (all leaves are literals / inlined genvars+localparams), else None.
+
+        Only invoked on ``FOLDABLE_KINDS``; the live-reference guard runs first so
+        the constant evaluator is only asked to fold subtrees that genuinely have
+        no surviving references (this also avoids a failed eval, which would
+        otherwise leave the EvalContext poisoned for later calls)."""
+        if self._eval_body is None:
+            return None
+        if self._has_live_ref(node):
+            return None
+        ctx = ASTContext(self._eval_body, LookupLocation.max)
+        value = ctx.tryEval(node)
+        if value is None or value.value is None:  # empty ConstantValue == failure
+            return None
+        return self._render_constant(value)
+
+    def _const_param_text(self, sym):
+        """Rendered constant value of a parameter/localparam, or None if it has
+        no usable constant value (e.g. a type parameter). Every parameter in the
+        elaborated design is specialized to a single value, so a reference to one
+        is just that constant."""
+        try:
+            value = sym.value
+        except Exception:
+            return None  # e.g. a type parameter has no ConstantValue
+        if value is None:
+            return None
+        text = self._render_constant(value)
+        return None if text == "<unset>" else text
+
+    def _value_ref(self, sym):
+        hp = sym.hierarchicalPath
+        if hp in self.param_subst:
+            return self.param_subst[hp]
+        if self.fold_constants and kind(sym) == "Parameter":
+            val = self._const_param_text(sym)
+            if val is not None:
+                return val
+        if self.flatten and hp in self.path_map:
+            return self._name(self.path_map[hp])
+        return self._name(sym.name)
+
+    def _expr_NamedValue(self, node):
+        return self._value_ref(node.symbol)
+
+    def _expr_HierarchicalValue(self, node):
+        sym = node.symbol
+        hp = sym.hierarchicalPath
+        if hp in self.param_subst:
+            return self.param_subst[hp]
+        mapped = self.path_map.get(hp)
+        if mapped is not None:
+            return self._name(mapped)
+        # A hierarchical reference to a parameter in another scope resolves to
+        # its concrete value (the target need not be inside the emitted module).
+        if self.fold_constants and kind(sym) == "Parameter":
+            val = self._const_param_text(sym)
+            if val is not None:
+                return val
+        raise EmitError(
+            f"cannot re-emit hierarchical reference to {sym.name!r} "
+            f"({hp}): target outside emitted module scope"
+        )
+
+    def _lit(self, node):
+        # Regular literals expose a folded .constant; unbased-unsized ('0/'1/'x)
+        # leave .constant None but carry the resolved sized .value.
+        c = getattr(node, "constant", None)
+        v = c.value if c is not None else node.value
+        if not isinstance(v, pyslang.SVInt):
+            return str(c if c is not None else node.value)
+        if _unsized_unknown(node):
+            # stays unsized: its x/z top bit extends to the width of the context
+            # (IEEE 1800 5.7.1, as Jasper reads it), where a sized one, and
+            # slang's own 32-bit value, zero-extends (`'bx` into 34 bits came out
+            # `32'dx`, two bits 0 where the original had X; hls jacobi)
+            return ("'sb" if v.isSigned else "'b") + v.toString(pyslang.LiteralBase.Binary, False)
+        return _int_literal(v)  # spelled out: str() abbreviates wide values
+
+    def _expr_IntegerLiteral(self, node):
+        return self._lit(node)
+
+    def _expr_UnbasedUnsizedIntegerLiteral(self, node):
+        return self._lit(node)
+
+    def _expr_RealLiteral(self, node):
+        return str(node.constant)
+
+    def _expr_StringLiteral(self, node):
+        raw = node.value if hasattr(node, "value") else str(node.constant)
+        return _string_literal(str(raw))
+
+    def _expr_UnaryOp(self, node):
+        op = node.op.name
+        operand = self.expr(node.operand)
+        # Increment/decrement require a bare variable_lvalue operand (IEEE 1800
+        # §11.4.2); a parenthesized "(i)++" is illegal. The slang operand is
+        # always an assignable lvalue, so no precedence parens are needed.
+        if op in ("Preincrement", "Predecrement"):
+            return f"{UNARY_PREFIX[op]}{operand}"
+        if op in UNARY_POSTFIX:
+            return f"{operand}{UNARY_POSTFIX[op]}"
+        if op in UNARY_PREFIX:
+            return f"{UNARY_PREFIX[op]}({operand})"
+        raise EmitError(f"unsupported unary op: {op!r}")
+
+    def _expr_BinaryOp(self, node):
+        op = BINARY_OPS.get(node.op.name)
+        if op is None:
+            raise EmitError(f"unsupported binary op: {node.op.name!r}")
+        return f"({self.expr(node.left)} {op} {self.expr(node.right)})"
+
+    def _expr_ConditionalOp(self, node):
+        cond = " &&& ".join(self.expr(c.expr) for c in node.conditions)
+        return f"({cond} ? {self.expr(node.left)} : {self.expr(node.right)})"
+
+    def _expr_Assignment(self, node):
+        return self._assignment_inner(node)
+
+    def _expr_Conversion(self, node):
+        return self.expr(node.operand)
+
+    def _select_base(self, node):
+        """The text a select applies to. Folding turns a parameter into its
+        literal, and `6'b100101[i]` is not SystemVerilog (opencores
+        configurable_crc_core). When the select itself did not fold, a parameter
+        base is referenced by name instead: the emitted module declares it, with
+        its specialized value. Only a parameter of the module body itself is
+        declared under its own name, so any other one is refused."""
+        base = node.value
+        if kind(base) == "NamedValue" and kind(base.symbol) == "Parameter" and self.fold_constants:
+            sym = base.symbol
+            if self._eval_body is None or sym.hierarchicalPath != f"{self._eval_body.hierarchicalPath}.{sym.name}":
+                raise EmitError(f"cannot select with a variable index from parameter {sym.hierarchicalPath!r} "
+                                f"declared outside the module body")
+            return sym.name
+        return self.expr(base)
+
+    def _expr_ElementSelect(self, node):
+        return f"{self._select_base(node)}[{self.expr(node.selector)}]"
+
+    def _expr_RangeSelect(self, node):
+        value = self._select_base(node)
+        left = self.expr(node.left)
+        right = self.expr(node.right)
+        sel = node.selectionKind.name
+        if sel == "Simple":
+            return f"{value}[{left}:{right}]"
+        if sel == "IndexedUp":
+            return f"{value}[{left}+:{right}]"
+        if sel == "IndexedDown":
+            return f"{value}[{left}-:{right}]"
+        raise EmitError(f"unsupported range selection kind: {sel!r}")
+
+    def _expr_ValueRange(self, node):
+        # `case inside` / `inside` labels. The binding has no rangeKind, so take
+        # the operator (`:`, or the tolerance forms `+/-` / `+%-`) from syntax.
+        op = node.syntax.op.valueText if node.syntax is not None else ":"
+        return f"[{self.expr(node.left)}{op}{self.expr(node.right)}]"
+
+    def _expr_MemberAccess(self, node):
+        return f"{self.expr(node.value)}.{node.member.name}"
+
+    def _expr_Concatenation(self, node):
+        # A zero-count replication (`{{W-16}{1'b0}}` with W = 16) is legal only as
+        # a concatenation operand and contributes nothing; slang types it void,
+        # and folded it would print as `null` (opencores wb_mcs51). Drop it.
+        ops = [o for o in node.operands if not o.type.isVoid]
+        if not ops:
+            raise EmitError("concatenation of nothing but zero-width operands")
+        return "{" + ", ".join(self.expr(o) for o in ops) + "}"
+
+    def _expr_Replication(self, node):
+        return "{" + self.expr(node.count) + self.expr(node.concat) + "}"
+
+    def _expr_Call(self, node):
+        # subroutineName works for both system calls ("$signed") and regular
+        # subroutines; node.subroutine is a SystemCallInfo (no .name) for the
+        # former, so don't rely on it.
+        name = getattr(node, "subroutineName", None)
+        if not name:
+            sub = node.subroutine
+            name = getattr(sub, "name", None) or str(sub)
+        args = ", ".join(self._call_arg(name, i, a) for i, a in enumerate(node.arguments))
+        return f"{name}({args})"
+
+    # System tasks whose first argument is a file name. A string parameter used
+    # there folds to its integer value (`104'h4450...`, opencores dpsfmnce), which
+    # is no file name; it is re-emitted as the string it spells.
+    _FILE_NAME_TASKS = {"$readmemh", "$readmemb", "$writememh", "$writememb", "$fopen", "$dumpfile"}
+
+    def _call_arg(self, name, i, a):
+        # an output argument (the memory of $readmemh) arrives as `target = <empty>`
+        if kind(a) == "Assignment" and kind(a.right) == "EmptyArgument":
+            return self.expr(a.left)
+        text = self.expr(a)
+        if i == 0 and name in self._FILE_NAME_TASKS:
+            m = re.fullmatch(r"(\d+)'h([0-9a-fA-F]+)", text)
+            if m and int(m.group(1)) % 8 == 0:
+                raw = bytes.fromhex(m.group(2).zfill(int(m.group(1)) // 4)).lstrip(b"\0")
+                if raw and all(32 <= c < 127 for c in raw):
+                    return '"' + raw.decode().replace("\\", "\\\\").replace('"', '\\"') + '"'
+        return text
+
+    def _expr_LValueReference(self, node):
+        # Only meaningful inside a compound-assignment RHS; the common case is
+        # handled structurally in _assignment_inner, this covers the fallback.
+        if self._lvalue is None:
+            raise EmitError("LValueReference outside a compound-assignment context")
+        return self._lvalue
+
+    def _expr_EmptyArgument(self, node):
+        return ""
+
+    def _render_constant(self, value):
+        # Aggregate constants (structs, packed/unpacked arrays) stringify as
+        # `[a,b,c]` in pyslang, which is not legal SystemVerilog. Emit them as an
+        # assignment pattern `'{a, b, c}` instead, recursing so nested aggregates
+        # (arrays of structs, multi-dim arrays) each get their own pattern. Scalar
+        # values (SVInt, real, string) render fine via str().
+        if getattr(value, "isContainer", None) is not None and value.isContainer():
+            return "'{" + ", ".join(self._render_constant(e) for e in value.value) + "}"
+        v = getattr(value, "value", None)
+        if isinstance(v, pyslang.SVInt):
+            return _int_literal(v)
+        return str(value)
+
+
+
+def gate_renames(renames, comp) -> tuple:
+    """The elaborator's renames (Emitter.rename_map: (kind, original, elaborated))
+    that still name something in `comp`, the elaborated design the gate checks,
+    as Run.renames with the original as golden. The dead-code prune may have
+    removed a renamed signal; pairing it would name nothing."""
+    from papercuts.utils import Rename
+
+    present = set()
+    for top in comp.getRoot().topInstances:
+        base = top.hierarchicalPath + "."
+
+        def walk(sym):
+            k = sym.kind.name
+            if k in ("Net", "Variable", "Instance"):
+                present.add(sym.hierarchicalPath[len(base):])
+            if k == "Instance":
+                for m in sym.body:
+                    walk(m)
+
+        for m in top.body:
+            walk(m)
+    return tuple(Rename(k, o, e) for k, o, e in renames if e in present)
+
+
+def _empty_port(port) -> bool:
+    """An empty port (`module m(a, , b)`, or a trailing comma in a non-ANSI port
+    list: opencores pipelined_fft_256): it carries nothing and connects to
+    nothing. It is dropped from the header and from every connection; the
+    elaborator connects by name, so no position shifts."""
+    return kind(port) == "Port" and port.name == "" and getattr(port, "internalSymbol", None) is None
+
+
+def _string_literal(s: str) -> str:
+    """`s` (the string's value, escapes already resolved) as a string literal.
+    Every character that is not printable ASCII is escaped: a raw newline ends
+    the literal (`$display("...\\n")` broke the elaborated irda, uart16550,
+    vga_lcd, ...)."""
+    out = []
+    for ch in s:
+        if ch in '\\"':
+            out.append("\\" + ch)
+        elif ch == "\n":
+            out.append("\\n")
+        elif ch == "\t":
+            out.append("\\t")
+        elif " " <= ch <= "~":
+            out.append(ch)
+        else:  # octal, one escape per byte of the source's UTF-8
+            out.extend(f"\\{b:03o}" for b in ch.encode("utf-8"))
+    return '"' + "".join(out) + '"'
+
+
+def _unsized_unknown(node) -> bool:
+    """An unsized integer literal (`'bx`, `'h1z`) with x/z bits."""
+    if node.kind.name != "IntegerLiteral" or not node.isDeclaredUnsized:
+        return False
+    c = node.constant
+    return c is not None and isinstance(c.value, pyslang.SVInt) and c.value.hasUnknown
+
+
+def _int_literal(v) -> str:
+    """An integer constant spelled out in full: slang's own choice of base
+    (SVInt::toString's heuristics) without its abbreviation of wide values, which
+    str() applies and which is not a literal (`195'd2510840694...e21`, opencores
+    ecg), and with unknown bits always exact (slang falls back to a lossy base
+    above 64 bits)."""
+    w, signed, unk = v.bitWidth, v.isSigned, v.hasUnknown
+    all_xz = unk and (v.countXs() == w or v.countZs() == w)
+    B = pyslang.LiteralBase
+    if (w < 8 and not signed) or (unk and not all_xz):
+        base = B.Binary
+    elif w <= 32 or signed or all_xz:
+        base = B.Decimal
+    else:
+        base = B.Hex
+    include_base = base != B.Decimal or w != 32 or not signed or unk
+    return v.toString(base, include_base)
+
+# A Compilation references its trees' SourceManager for its whole lifetime. When
+# we build trees with an explicitly-created SourceManager (to add include dirs /
+# predefines), that Python object must outlive the Compilation -- if it is GC'd,
+# the C++ side dangles and elaboration misfires (spurious UnknownModule errors or
+# hangs). Hold a reference for the process lifetime; one tiny env per elaboration.
+_PARSE_ENV_KEEPALIVE: list = []
+
+
+def make_parse_env(incdirs=(), defines=()):
+    """Build a shared SourceManager + options Bag for `include / macro support.
+
+    ``incdirs`` are added as user include-search directories (the equivalent of
+    ``+incdir``); ``defines`` is a list of ``"NAME"`` or ``"NAME=VALUE"`` strings
+    predefined before preprocessing (the equivalent of ``+define``). One shared
+    SourceManager across every file keeps source locations consistent for
+    diagnostics. With no incdirs/defines this is equivalent to a plain parse.
+    """
+    sm = pyslang.SourceManager()
+    for d in incdirs:
+        sm.addUserDirectories(d)
+    pp = PreprocessorOptions()
+    if defines:
+        pp.predefines = list(defines)
+    opts = pyslang.Bag([pp, pragmas.lexer_options()])  # translate_off regions skipped as Jasper does
+    _PARSE_ENV_KEEPALIVE.append((sm, opts))  # keep alive for the Compilation
+    return sm, opts
+
+
+def build_compilation_from(trees, top=None):
+    """Compilation over already-parsed trees, so callers holding them re-use rather
+    than re-parse. The trees' SourceManager must outlive the Compilation.
+    ``top`` names the top module; without it, every uninstantiated module is one."""
+    opts = CompilationOptions()
+    # Files without a `timescale beside files with one are an error to slang
+    # ("design element does not have a time scale defined but others in the
+    # design do": opencores brisc, ptc, datetime, ...). Timing means nothing to
+    # the formal checks, so unmarked elements get a default, as slang's own
+    # --timescale option does.
+    opts.defaultTimeScale = pyslang.TimeScale.fromString("1ns/1ps")
+    if top:
+        opts.topModules = {top}
+    comp = Compilation(pyslang.Bag([opts]))
+    for tree in trees:
+        comp.addSyntaxTree(tree)
+    return comp
+
+
+def build_compilation(files, incdirs=(), defines=(), top=None):
+    sm, opts = make_parse_env(incdirs, defines)
+    return build_compilation_from((SyntaxTree.fromFile(p, sm, opts) for p in files), top=top)
+
+
+def report_diagnostics(comp):
+    diags = comp.getAllDiagnostics()
+    client = pyslang.TextDiagnosticClient()
+    engine = pyslang.DiagnosticEngine(comp.sourceManager)
+    engine.addClient(client)
+    errored = False
+    for d in diags:
+        engine.issue(d)
+        errored = errored or d.isError()
+    text = client.getString()
+    if text.strip():
+        print(text, file=sys.stderr)
+    return errored
+
+
+class ElaborationError(Exception):
+    """Raised when the input cannot be elaborated (has compilation errors)."""
+
+
+def _all_definition_names(comp):
+    """Definition names of every instantiated module in the compilation.
+
+    Used to resolve ``ignore`` globs to the concrete definition names the
+    emitter matches against (``inst.body.name``)."""
+    names = set()
+
+    def _v(obj):
+        if isinstance(obj, InstanceSymbol):
+            names.add(obj.body.name)
+
+    comp.getRoot().visit(_v)
+    return names
+
+
+def _resolve_ignore(comp, patterns):
+    """Resolve ``ignore`` fnmatch globs to concrete definition names.
+
+    The emitter's verbatim-boundary check is exact membership on the module
+    definition name, but callers (the papercuts ``--exclude-module`` flag) pass
+    fnmatch globs like ``lib_*``. Expand them against the definitions actually
+    present so a glob and a bare name both work."""
+    patterns = list(patterns or ())
+    if not patterns:
+        return set()
+    names = _all_definition_names(comp)
+    return {n for n in names if any(fnmatch.fnmatch(n, p) for p in patterns)}
+
+
+@dataclass
+class ElaboratedDesign:
+    """Result of :func:`elaborate_design`."""
+
+    source: str            # re-emitted SystemVerilog for the whole design
+    top: str               # top module name (empty if there is no top instance)
+    tops: list             # all top-instance names (usually exactly one)
+    verbatim: set          # module names emitted verbatim (the opaque/uncut region)
+    renames: list          # Emitter.rename_map: (kind, original path, emitted path)
+
+
+def elaborate_design(files, *, flatten=True, ignore=(),
+                     fold_constants=True, incdirs=(), defines=(), top=None):
+    """Elaborate ``files`` and re-emit the whole design as one source blob.
+
+    ``ignore`` accepts fnmatch globs or bare names; matching module definitions
+    are emitted verbatim (an opaque boundary) instead of specialized per
+    instance. ``fold_constants`` (default on) collapses fully-constant
+    subexpressions -- e.g. the ``0 * 10`` junk left behind when a generate loop
+    is unrolled -- to their resolved value; references that survive in the output
+    (module parameters, signals) are left untouched. Raises
+    :class:`ElaborationError` on compilation errors and ``EmitError`` on an
+    unhandled construct -- callers gate on both.
+
+    ``top`` picks the top module when the sources leave more than one module
+    uninstantiated (helpers nothing uses); only its hierarchy is elaborated.
+
+    Returns an :class:`ElaboratedDesign` carrying the source and the top module
+    name (the pipeline needs the top to wire the elaborated-vs-original gate)."""
+    comp = build_compilation(files, incdirs=incdirs, defines=defines, top=top)
+    if report_diagnostics(comp):
+        raise ElaborationError("input has compilation errors; aborting")
+
+    emitter = Emitter()
+    emitter.flatten = flatten
+    emitter.fold_constants = fold_constants
+    emitter.ignore = _resolve_ignore(comp, ignore)
+    source = emitter.run(comp)
+
+    tops = [inst.name for inst in comp.getRoot().topInstances]
+    return ElaboratedDesign(
+        source=source,
+        top=tops[0] if tops else "",
+        tops=tops,
+        verbatim=set(emitter.verbatim),
+        renames=emitter.rename_map(comp),
+    )
+
+
+def elaborate(files, *, flatten=True, ignore=(),
+              fold_constants=True, incdirs=(), defines=()) -> str:
+    """Elaborate ``files`` and return the re-emitted design as a string.
+
+    Thin wrapper over :func:`elaborate_design` for callers that only need the
+    source text (the CLI). Use ``elaborate_design`` when you also need the top
+    module name (e.g. to wire the elaborated-vs-original equivalence gate)."""
+    return elaborate_design(
+        files, flatten=flatten, ignore=ignore,
+        fold_constants=fold_constants, incdirs=incdirs, defines=defines,
+    ).source
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Re-emit SystemVerilog from a live slang elaboration (pyslang)"
+    )
+    parser.add_argument("files", nargs="+", help="SystemVerilog source files")
+    parser.add_argument("--output", "-o", help="Output file (default: stdout)")
+    parser.add_argument(
+        "--flatten", action=argparse.BooleanOptionalAction, default=True,
+        help="dissolve generate blocks into module scope with mangled names "
+        "(default: on; use --no-flatten to keep scoped `if (1) begin : ...` blocks)",
+    )
+    parser.add_argument(
+        "--ignore", action="append", default=[], metavar="MODULE",
+        help="emit this module definition verbatim (original source) instead of "
+        "specializing it per instance; forms an opaque boundary (its subtree is "
+        "emitted verbatim too). Accepts fnmatch globs (e.g. 'lib_*'). Repeatable.",
+    )
+    parser.add_argument(
+        "--fold-constants", action=argparse.BooleanOptionalAction, default=True,
+        help="resolve fully-constant subexpressions (e.g. generate-loop junk "
+        "like '0 * 10') to their folded value (default: on; use "
+        "--no-fold-constants to emit the raw arithmetic)",
+    )
+    parser.add_argument(
+        "-I", "--incdir", action="append", default=[], metavar="DIR",
+        help="add an include-search directory (like +incdir). Repeatable.",
+    )
+    parser.add_argument(
+        "-D", "--define", action="append", default=[], metavar="NAME[=VALUE]",
+        help="predefine a macro before preprocessing (like +define). Repeatable.",
+    )
+    args = parser.parse_args()
+
+    try:
+        output = elaborate(
+            args.files,
+            flatten=args.flatten,
+            ignore=args.ignore,
+            fold_constants=args.fold_constants,
+            incdirs=args.incdir,
+            defines=args.define,
+        )
+    except (ElaborationError, EmitError) as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+    if args.output:
+        with open(args.output, "w") as f:
+            f.write(output)
+    else:
+        sys.stdout.write(output)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,4102 @@
+[
+ {
+  "design": "hls_polybench__fixed__medium__floyd_warshall",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__medium__floyd_warshall/kernel_floyd_warshall.v",
+   "designs/hls_polybench__fixed__medium__floyd_warshall/kernel_floyd_warshall_flow_control_loop_pipe.v",
+   "designs/hls_polybench__fixed__medium__floyd_warshall/kernel_floyd_warshall_mac_muladd_9ns_9ns_9ns_18_4_1.v",
+   "designs/hls_polybench__fixed__medium__floyd_warshall/kernel_floyd_warshall_mul_9ns_10ns_18_1_1.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__medium__floyd_warshall",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 107,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_floyd_warshall",
+   "sources": [
+    "designs/hls_polybench__fixed__medium__floyd_warshall/kernel_floyd_warshall.v",
+    "designs/hls_polybench__fixed__medium__floyd_warshall/kernel_floyd_warshall_flow_control_loop_pipe.v",
+    "designs/hls_polybench__fixed__medium__floyd_warshall/kernel_floyd_warshall_mac_muladd_9ns_9ns_9ns_18_4_1.v",
+    "designs/hls_polybench__fixed__medium__floyd_warshall/kernel_floyd_warshall_mul_9ns_10ns_18_1_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__medium__floyd_warshall",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__medium__gesummv",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__medium__gesummv/kernel_gesummv.v",
+   "designs/hls_polybench__fixed__medium__gesummv/kernel_gesummv_flow_control_loop_pipe.v",
+   "designs/hls_polybench__fixed__medium__gesummv/kernel_gesummv_mac_muladd_8ns_8ns_8ns_16_4_1.v",
+   "designs/hls_polybench__fixed__medium__gesummv/kernel_gesummv_mul_32s_32s_48_2_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__medium__gesummv",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 113,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_gesummv",
+   "sources": [
+    "designs/hls_polybench__fixed__medium__gesummv/kernel_gesummv.v",
+    "designs/hls_polybench__fixed__medium__gesummv/kernel_gesummv_flow_control_loop_pipe.v",
+    "designs/hls_polybench__fixed__medium__gesummv/kernel_gesummv_mac_muladd_8ns_8ns_8ns_16_4_1.v",
+    "designs/hls_polybench__fixed__medium__gesummv/kernel_gesummv_mul_32s_32s_48_2_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__medium__gesummv",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__medium__jacobi_1d",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d.v",
+   "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_22_2.v",
+   "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_24_3.v",
+   "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d_mul_34s_16ns_48_2_1.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__medium__jacobi_1d",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 175,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_jacobi_1d",
+   "sources": [
+    "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d.v",
+    "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_22_2.v",
+    "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_24_3.v",
+    "designs/hls_polybench__fixed__medium__jacobi_1d/kernel_jacobi_1d_mul_34s_16ns_48_2_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__medium__jacobi_1d",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__medium__trisolv",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv.v",
+   "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv_kernel_trisolv_Pipeline_VITIS_LOOP_22_2.v",
+   "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv_mul_32s_32s_48_2_1.v",
+   "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv_sdiv_48ns_32s_32_52_seq_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__medium__trisolv",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 134,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_trisolv",
+   "sources": [
+    "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv.v",
+    "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv_kernel_trisolv_Pipeline_VITIS_LOOP_22_2.v",
+    "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv_mul_32s_32s_48_2_1.v",
+    "designs/hls_polybench__fixed__medium__trisolv/kernel_trisolv_sdiv_48ns_32s_32_52_seq_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__medium__trisolv",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__mini__fdtd_2d",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d.v",
+   "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_kernel_fdtd_2d_Pipeline_VITIS_LOOP_27_2.v",
+   "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_kernel_fdtd_2d_Pipeline_VITIS_LOOP_29_3_VITIS_LOOP_30_4.v",
+   "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_kernel_fdtd_2d_Pipeline_VITIS_LOOP_32_5_VITIS_LOOP_33_6.v",
+   "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_kernel_fdtd_2d_Pipeline_VITIS_LOOP_35_7_VITIS_LOOP_36_8.v",
+   "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_mul_34s_17s_48_2_1.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__mini__fdtd_2d",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 383,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_fdtd_2d",
+   "sources": [
+    "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d.v",
+    "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_kernel_fdtd_2d_Pipeline_VITIS_LOOP_27_2.v",
+    "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_kernel_fdtd_2d_Pipeline_VITIS_LOOP_29_3_VITIS_LOOP_30_4.v",
+    "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_kernel_fdtd_2d_Pipeline_VITIS_LOOP_32_5_VITIS_LOOP_33_6.v",
+    "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_kernel_fdtd_2d_Pipeline_VITIS_LOOP_35_7_VITIS_LOOP_36_8.v",
+    "designs/hls_polybench__fixed__mini__fdtd_2d/kernel_fdtd_2d_mul_34s_17s_48_2_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__mini__fdtd_2d",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__mini__gemm",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__mini__gemm/kernel_gemm.v",
+   "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_kernel_gemm_Pipeline_VITIS_LOOP_23_2.v",
+   "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_kernel_gemm_Pipeline_VITIS_LOOP_25_3.v",
+   "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_mul_32s_32s_48_2_1.v",
+   "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_mul_32s_32s_64_2_1.v",
+   "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_mul_64s_32s_64_5_1.v",
+   "-e",
+   "-j",
+   "2",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__mini__gemm",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 220,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_gemm",
+   "sources": [
+    "designs/hls_polybench__fixed__mini__gemm/kernel_gemm.v",
+    "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_kernel_gemm_Pipeline_VITIS_LOOP_23_2.v",
+    "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_kernel_gemm_Pipeline_VITIS_LOOP_25_3.v",
+    "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_mul_32s_32s_48_2_1.v",
+    "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_mul_32s_32s_64_2_1.v",
+    "designs/hls_polybench__fixed__mini__gemm/kernel_gemm_mul_64s_32s_64_5_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__mini__gemm",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__mini__jacobi_1d",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__mini__jacobi_1d/kernel_jacobi_1d.v",
+   "designs/hls_polybench__fixed__mini__jacobi_1d/kernel_jacobi_1d_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__mini__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_20_1.v",
+   "designs/hls_polybench__fixed__mini__jacobi_1d/kernel_jacobi_1d_mul_34s_16ns_48_2_1.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__mini__jacobi_1d",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 329,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_jacobi_1d",
+   "sources": [
+    "designs/hls_polybench__fixed__mini__jacobi_1d/kernel_jacobi_1d.v",
+    "designs/hls_polybench__fixed__mini__jacobi_1d/kernel_jacobi_1d_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__mini__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_20_1.v",
+    "designs/hls_polybench__fixed__mini__jacobi_1d/kernel_jacobi_1d_mul_34s_16ns_48_2_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__mini__jacobi_1d",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__mini__nussinov",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__mini__nussinov/kernel_nussinov.v",
+   "designs/hls_polybench__fixed__mini__nussinov/kernel_nussinov_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__mini__nussinov/kernel_nussinov_kernel_nussinov_Pipeline_VITIS_LOOP_33_3.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__mini__nussinov",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 155,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_nussinov",
+   "sources": [
+    "designs/hls_polybench__fixed__mini__nussinov/kernel_nussinov.v",
+    "designs/hls_polybench__fixed__mini__nussinov/kernel_nussinov_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__mini__nussinov/kernel_nussinov_kernel_nussinov_Pipeline_VITIS_LOOP_33_3.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__mini__nussinov",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__mini__symm",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__mini__symm/kernel_symm.v",
+   "designs/hls_polybench__fixed__mini__symm/kernel_symm_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__mini__symm/kernel_symm_kernel_symm_Pipeline_VITIS_LOOP_26_3.v",
+   "designs/hls_polybench__fixed__mini__symm/kernel_symm_mul_32s_32s_48_2_1.v",
+   "designs/hls_polybench__fixed__mini__symm/kernel_symm_mul_32s_32s_64_2_1.v",
+   "designs/hls_polybench__fixed__mini__symm/kernel_symm_mul_5ns_6ns_10_1_1.v",
+   "designs/hls_polybench__fixed__mini__symm/kernel_symm_mul_64s_32s_64_5_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__mini__symm",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 161,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_symm",
+   "sources": [
+    "designs/hls_polybench__fixed__mini__symm/kernel_symm.v",
+    "designs/hls_polybench__fixed__mini__symm/kernel_symm_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__mini__symm/kernel_symm_kernel_symm_Pipeline_VITIS_LOOP_26_3.v",
+    "designs/hls_polybench__fixed__mini__symm/kernel_symm_mul_32s_32s_48_2_1.v",
+    "designs/hls_polybench__fixed__mini__symm/kernel_symm_mul_32s_32s_64_2_1.v",
+    "designs/hls_polybench__fixed__mini__symm/kernel_symm_mul_5ns_6ns_10_1_1.v",
+    "designs/hls_polybench__fixed__mini__symm/kernel_symm_mul_64s_32s_64_5_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__mini__symm",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__mini__trisolv",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv.v",
+   "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv_kernel_trisolv_Pipeline_VITIS_LOOP_22_2.v",
+   "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv_mul_32s_32s_48_2_1.v",
+   "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv_sdiv_48ns_32s_32_52_seq_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__mini__trisolv",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 137,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_trisolv",
+   "sources": [
+    "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv.v",
+    "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv_kernel_trisolv_Pipeline_VITIS_LOOP_22_2.v",
+    "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv_mul_32s_32s_48_2_1.v",
+    "designs/hls_polybench__fixed__mini__trisolv/kernel_trisolv_sdiv_48ns_32s_32_52_seq_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__mini__trisolv",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__small__atax",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__small__atax/kernel_atax.v",
+   "designs/hls_polybench__fixed__small__atax/kernel_atax_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__small__atax/kernel_atax_kernel_atax_Pipeline_VITIS_LOOP_21_1.v",
+   "designs/hls_polybench__fixed__small__atax/kernel_atax_kernel_atax_Pipeline_VITIS_LOOP_26_3.v",
+   "designs/hls_polybench__fixed__small__atax/kernel_atax_kernel_atax_Pipeline_VITIS_LOOP_28_4.v",
+   "designs/hls_polybench__fixed__small__atax/kernel_atax_mul_32s_32s_48_2_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__small__atax",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 235,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_atax",
+   "sources": [
+    "designs/hls_polybench__fixed__small__atax/kernel_atax.v",
+    "designs/hls_polybench__fixed__small__atax/kernel_atax_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__small__atax/kernel_atax_kernel_atax_Pipeline_VITIS_LOOP_21_1.v",
+    "designs/hls_polybench__fixed__small__atax/kernel_atax_kernel_atax_Pipeline_VITIS_LOOP_26_3.v",
+    "designs/hls_polybench__fixed__small__atax/kernel_atax_kernel_atax_Pipeline_VITIS_LOOP_28_4.v",
+    "designs/hls_polybench__fixed__small__atax/kernel_atax_mul_32s_32s_48_2_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__small__atax",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__small__bicg",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__small__bicg/kernel_bicg.v",
+   "designs/hls_polybench__fixed__small__bicg/kernel_bicg_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__small__bicg/kernel_bicg_kernel_bicg_Pipeline_VITIS_LOOP_22_1.v",
+   "designs/hls_polybench__fixed__small__bicg/kernel_bicg_kernel_bicg_Pipeline_VITIS_LOOP_24_2_VITIS_LOOP_27_3.v",
+   "designs/hls_polybench__fixed__small__bicg/kernel_bicg_mac_muladd_7ns_7ns_7ns_14_4_1.v",
+   "designs/hls_polybench__fixed__small__bicg/kernel_bicg_mul_32s_32s_48_2_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__small__bicg",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 178,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_bicg",
+   "sources": [
+    "designs/hls_polybench__fixed__small__bicg/kernel_bicg.v",
+    "designs/hls_polybench__fixed__small__bicg/kernel_bicg_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__small__bicg/kernel_bicg_kernel_bicg_Pipeline_VITIS_LOOP_22_1.v",
+    "designs/hls_polybench__fixed__small__bicg/kernel_bicg_kernel_bicg_Pipeline_VITIS_LOOP_24_2_VITIS_LOOP_27_3.v",
+    "designs/hls_polybench__fixed__small__bicg/kernel_bicg_mac_muladd_7ns_7ns_7ns_14_4_1.v",
+    "designs/hls_polybench__fixed__small__bicg/kernel_bicg_mul_32s_32s_48_2_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__small__bicg",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__small__gemm",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__small__gemm/kernel_gemm.v",
+   "designs/hls_polybench__fixed__small__gemm/kernel_gemm_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__small__gemm/kernel_gemm_kernel_gemm_Pipeline_VITIS_LOOP_23_2.v",
+   "designs/hls_polybench__fixed__small__gemm/kernel_gemm_kernel_gemm_Pipeline_VITIS_LOOP_25_3_VITIS_LOOP_26_4.v",
+   "designs/hls_polybench__fixed__small__gemm/kernel_gemm_mac_muladd_7ns_7ns_7ns_13_4_1.v",
+   "designs/hls_polybench__fixed__small__gemm/kernel_gemm_mul_32s_32s_48_2_1.v",
+   "designs/hls_polybench__fixed__small__gemm/kernel_gemm_mul_32s_32s_64_2_1.v",
+   "designs/hls_polybench__fixed__small__gemm/kernel_gemm_mul_64s_32s_64_5_1.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__small__gemm",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 221,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_gemm",
+   "sources": [
+    "designs/hls_polybench__fixed__small__gemm/kernel_gemm.v",
+    "designs/hls_polybench__fixed__small__gemm/kernel_gemm_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__small__gemm/kernel_gemm_kernel_gemm_Pipeline_VITIS_LOOP_23_2.v",
+    "designs/hls_polybench__fixed__small__gemm/kernel_gemm_kernel_gemm_Pipeline_VITIS_LOOP_25_3_VITIS_LOOP_26_4.v",
+    "designs/hls_polybench__fixed__small__gemm/kernel_gemm_mac_muladd_7ns_7ns_7ns_13_4_1.v",
+    "designs/hls_polybench__fixed__small__gemm/kernel_gemm_mul_32s_32s_48_2_1.v",
+    "designs/hls_polybench__fixed__small__gemm/kernel_gemm_mul_32s_32s_64_2_1.v",
+    "designs/hls_polybench__fixed__small__gemm/kernel_gemm_mul_64s_32s_64_5_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__small__gemm",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__small__gesummv",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__small__gesummv/kernel_gesummv.v",
+   "designs/hls_polybench__fixed__small__gesummv/kernel_gesummv_flow_control_loop_pipe.v",
+   "designs/hls_polybench__fixed__small__gesummv/kernel_gesummv_mac_muladd_7ns_7ns_7ns_13_4_1.v",
+   "designs/hls_polybench__fixed__small__gesummv/kernel_gesummv_mul_32s_32s_48_2_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__small__gesummv",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 113,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_gesummv",
+   "sources": [
+    "designs/hls_polybench__fixed__small__gesummv/kernel_gesummv.v",
+    "designs/hls_polybench__fixed__small__gesummv/kernel_gesummv_flow_control_loop_pipe.v",
+    "designs/hls_polybench__fixed__small__gesummv/kernel_gesummv_mac_muladd_7ns_7ns_7ns_13_4_1.v",
+    "designs/hls_polybench__fixed__small__gesummv/kernel_gesummv_mul_32s_32s_48_2_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__small__gesummv",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__small__jacobi_1d",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d.v",
+   "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_22_2.v",
+   "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_24_3.v",
+   "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d_mul_34s_16ns_48_2_1.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__small__jacobi_1d",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 178,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_jacobi_1d",
+   "sources": [
+    "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d.v",
+    "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_22_2.v",
+    "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d_kernel_jacobi_1d_Pipeline_VITIS_LOOP_24_3.v",
+    "designs/hls_polybench__fixed__small__jacobi_1d/kernel_jacobi_1d_mul_34s_16ns_48_2_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__small__jacobi_1d",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__small__nussinov",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov.v",
+   "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_kernel_nussinov_Pipeline_VITIS_LOOP_33_3.v",
+   "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_mac_muladd_15s_8ns_9ns_15_4_1.v",
+   "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_mul_8ns_9ns_15_1_1.v",
+   "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_mul_9ns_9ns_15_1_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__small__nussinov",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 155,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_nussinov",
+   "sources": [
+    "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov.v",
+    "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_kernel_nussinov_Pipeline_VITIS_LOOP_33_3.v",
+    "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_mac_muladd_15s_8ns_9ns_15_4_1.v",
+    "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_mul_8ns_9ns_15_1_1.v",
+    "designs/hls_polybench__fixed__small__nussinov/kernel_nussinov_mul_9ns_9ns_15_1_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__small__nussinov",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__small__syr2k",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k.v",
+   "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_kernel_syr2k_Pipeline_VITIS_LOOP_22_2.v",
+   "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_kernel_syr2k_Pipeline_VITIS_LOOP_24_3_VITIS_LOOP_25_4.v",
+   "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_mul_32s_32s_48_2_1.v",
+   "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_mul_32s_32s_64_2_1.v",
+   "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_mul_64s_32s_64_5_1.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__small__syr2k",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 256,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_syr2k",
+   "sources": [
+    "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k.v",
+    "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_kernel_syr2k_Pipeline_VITIS_LOOP_22_2.v",
+    "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_kernel_syr2k_Pipeline_VITIS_LOOP_24_3_VITIS_LOOP_25_4.v",
+    "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_mul_32s_32s_48_2_1.v",
+    "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_mul_32s_32s_64_2_1.v",
+    "designs/hls_polybench__fixed__small__syr2k/kernel_syr2k_mul_64s_32s_64_5_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__small__syr2k",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "hls_polybench__fixed__small__trisolv",
+  "papercuts_args": [
+   "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv.v",
+   "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv_flow_control_loop_pipe_sequential_init.v",
+   "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv_kernel_trisolv_Pipeline_VITIS_LOOP_22_2.v",
+   "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv_mul_32s_32s_48_2_1.v",
+   "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv_sdiv_48ns_32s_32_52_seq_1.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/hls_polybench__fixed__small__trisolv",
+   "-I",
+   "includes",
+   "--reset",
+   "ap_rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "ap_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 135,
+  "reported": true,
+  "synthesis": {
+   "top": "kernel_trisolv",
+   "sources": [
+    "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv.v",
+    "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv_flow_control_loop_pipe_sequential_init.v",
+    "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv_kernel_trisolv_Pipeline_VITIS_LOOP_22_2.v",
+    "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv_mul_32s_32s_48_2_1.v",
+    "designs/hls_polybench__fixed__small__trisolv/kernel_trisolv_sdiv_48ns_32s_32_52_seq_1.v"
+   ],
+   "incdirs": [
+    "designs/hls_polybench__fixed__small__trisolv",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ap_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "koios__reduction_layer",
+  "papercuts_args": [
+   "designs/koios__reduction_layer/reduction_layer.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/koios__reduction_layer",
+   "-I",
+   "includes",
+   "--reset",
+   "!resetn",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 577,
+  "reported": true,
+  "synthesis": {
+   "top": "reduction_layer",
+   "sources": [
+    "designs/koios__reduction_layer/reduction_layer.v"
+   ],
+   "incdirs": [
+    "designs/koios__reduction_layer",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "koios__test",
+  "papercuts_args": [
+   "designs/koios__test/test.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/koios__test",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 54,
+  "reported": true,
+  "synthesis": {
+   "top": "top",
+   "sources": [
+    "designs/koios__test/test.v"
+   ],
+   "incdirs": [
+    "designs/koios__test",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__adder128",
+  "papercuts_args": [
+   "designs/opencores__adder128/high-speed-adder-128bits-opencore.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__adder128",
+   "-I",
+   "includes",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__adder256",
+  "papercuts_args": [
+   "designs/opencores__adder256/high-speed-adder-256bits-opencore.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__adder256",
+   "-I",
+   "includes",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__aemb__edk32",
+  "papercuts_args": [
+   "designs/opencores__aemb__edk32/aeMB_bpcu.v",
+   "designs/opencores__aemb__edk32/aeMB_core.v",
+   "designs/opencores__aemb__edk32/aeMB_ctrl.v",
+   "designs/opencores__aemb__edk32/aeMB_edk32.v",
+   "designs/opencores__aemb__edk32/aeMB_ibuf.v",
+   "designs/opencores__aemb__edk32/aeMB_regf.v",
+   "designs/opencores__aemb__edk32/aeMB_xecu.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__aemb__edk32",
+   "-I",
+   "includes",
+   "--reset",
+   "sys_rst_i",
+   "--clock",
+   "sys_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 54,
+  "reported": true,
+  "synthesis": {
+   "top": "aeMB_core",
+   "sources": [
+    "designs/opencores__aemb__edk32/aeMB_bpcu.v",
+    "designs/opencores__aemb__edk32/aeMB_core.v",
+    "designs/opencores__aemb__edk32/aeMB_ctrl.v",
+    "designs/opencores__aemb__edk32/aeMB_edk32.v",
+    "designs/opencores__aemb__edk32/aeMB_ibuf.v",
+    "designs/opencores__aemb__edk32/aeMB_regf.v",
+    "designs/opencores__aemb__edk32/aeMB_xecu.v"
+   ],
+   "incdirs": [
+    "designs/opencores__aemb__edk32",
+    "includes"
+   ],
+   "fc_clocks": [
+    "sys_clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__aes_10cycle_10stage",
+  "papercuts_args": [
+   "designs/opencores__aes_10cycle_10stage/aes_cipher_top.v",
+   "designs/opencores__aes_10cycle_10stage/aes_key_expand_128.v",
+   "designs/opencores__aes_10cycle_10stage/aes_rcon.v",
+   "designs/opencores__aes_10cycle_10stage/aes_sbox.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__aes_10cycle_10stage",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 10,
+  "reported": true,
+  "synthesis": {
+   "top": "aes_cipher_top",
+   "sources": [
+    "designs/opencores__aes_10cycle_10stage/aes_cipher_top.v",
+    "designs/opencores__aes_10cycle_10stage/aes_key_expand_128.v",
+    "designs/opencores__aes_10cycle_10stage/aes_rcon.v",
+    "designs/opencores__aes_10cycle_10stage/aes_sbox.v"
+   ],
+   "incdirs": [
+    "designs/opencores__aes_10cycle_10stage",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__aes_1cycle_1stage",
+  "papercuts_args": [
+   "designs/opencores__aes_1cycle_1stage/aes_cipher_top.v",
+   "designs/opencores__aes_1cycle_1stage/aes_key_expand_128.v",
+   "designs/opencores__aes_1cycle_1stage/aes_rcon.v",
+   "designs/opencores__aes_1cycle_1stage/aes_sbox.v",
+   "-e",
+   "-j",
+   "2",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__aes_1cycle_1stage",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 12,
+  "reported": true,
+  "synthesis": {
+   "top": "aes_cipher_top",
+   "sources": [
+    "designs/opencores__aes_1cycle_1stage/aes_cipher_top.v",
+    "designs/opencores__aes_1cycle_1stage/aes_key_expand_128.v",
+    "designs/opencores__aes_1cycle_1stage/aes_rcon.v",
+    "designs/opencores__aes_1cycle_1stage/aes_sbox.v"
+   ],
+   "incdirs": [
+    "designs/opencores__aes_1cycle_1stage",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__aes_5cycle_2stage",
+  "papercuts_args": [
+   "designs/opencores__aes_5cycle_2stage/aes_cipher_top.v",
+   "designs/opencores__aes_5cycle_2stage/aes_key_expand_128.v",
+   "designs/opencores__aes_5cycle_2stage/aes_rcon.v",
+   "designs/opencores__aes_5cycle_2stage/aes_sbox.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__aes_5cycle_2stage",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 36,
+  "reported": true,
+  "synthesis": {
+   "top": "aes_cipher_top",
+   "sources": [
+    "designs/opencores__aes_5cycle_2stage/aes_cipher_top.v",
+    "designs/opencores__aes_5cycle_2stage/aes_key_expand_128.v",
+    "designs/opencores__aes_5cycle_2stage/aes_rcon.v",
+    "designs/opencores__aes_5cycle_2stage/aes_sbox.v"
+   ],
+   "incdirs": [
+    "designs/opencores__aes_5cycle_2stage",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__aes_core__aes_cipher",
+  "papercuts_args": [
+   "designs/opencores__aes_core__aes_cipher/aes_cipher_top.v",
+   "designs/opencores__aes_core__aes_cipher/aes_key_expand_128.v",
+   "designs/opencores__aes_core__aes_cipher/aes_rcon.v",
+   "designs/opencores__aes_core__aes_cipher/aes_sbox.v",
+   "designs/opencores__aes_core__aes_cipher/timescale.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__aes_core__aes_cipher",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 5,
+  "reported": true,
+  "synthesis": {
+   "top": "aes_cipher_top",
+   "sources": [
+    "designs/opencores__aes_core__aes_cipher/aes_cipher_top.v",
+    "designs/opencores__aes_core__aes_cipher/aes_key_expand_128.v",
+    "designs/opencores__aes_core__aes_cipher/aes_rcon.v",
+    "designs/opencores__aes_core__aes_cipher/aes_sbox.v",
+    "designs/opencores__aes_core__aes_cipher/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__aes_core__aes_cipher",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__aes_core__aes_inv_cipher",
+  "papercuts_args": [
+   "designs/opencores__aes_core__aes_inv_cipher/aes_inv_cipher_top.v",
+   "designs/opencores__aes_core__aes_inv_cipher/aes_inv_sbox.v",
+   "designs/opencores__aes_core__aes_inv_cipher/aes_key_expand_128.v",
+   "designs/opencores__aes_core__aes_inv_cipher/aes_rcon.v",
+   "designs/opencores__aes_core__aes_inv_cipher/aes_sbox.v",
+   "designs/opencores__aes_core__aes_inv_cipher/timescale.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__aes_core__aes_inv_cipher",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 4,
+  "reported": true,
+  "synthesis": {
+   "top": "aes_inv_cipher_top",
+   "sources": [
+    "designs/opencores__aes_core__aes_inv_cipher/aes_inv_cipher_top.v",
+    "designs/opencores__aes_core__aes_inv_cipher/aes_inv_sbox.v",
+    "designs/opencores__aes_core__aes_inv_cipher/aes_key_expand_128.v",
+    "designs/opencores__aes_core__aes_inv_cipher/aes_rcon.v",
+    "designs/opencores__aes_core__aes_inv_cipher/aes_sbox.v",
+    "designs/opencores__aes_core__aes_inv_cipher/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__aes_core__aes_inv_cipher",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__ahb_arbiter",
+  "papercuts_args": [
+   "designs/opencores__ahb_arbiter/generic_ahb_arbiter.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__ahb_arbiter",
+   "-I",
+   "includes",
+   "--reset",
+   "!hreset",
+   "--clock",
+   "hclk",
+   "--const-priority"
+  ],
+  "cuts_kept": 2,
+  "reported": true,
+  "synthesis": {
+   "top": "generic_arbiter_full",
+   "sources": [
+    "designs/opencores__ahb_arbiter/generic_ahb_arbiter.v"
+   ],
+   "incdirs": [
+    "designs/opencores__ahb_arbiter",
+    "includes"
+   ],
+   "fc_clocks": [
+    "hclk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__bubblesortmodule",
+  "papercuts_args": [
+   "designs/opencores__bubblesortmodule/bitsplit.v",
+   "designs/opencores__bubblesortmodule/bublesort.v",
+   "designs/opencores__bubblesortmodule/intgenerator.v",
+   "designs/opencores__bubblesortmodule/rungenerator.v",
+   "designs/opencores__bubblesortmodule/stageen.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__bubblesortmodule",
+   "-I",
+   "includes",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 20,
+  "reported": true,
+  "synthesis": {
+   "top": "bublesort",
+   "sources": [
+    "designs/opencores__bubblesortmodule/bitsplit.v",
+    "designs/opencores__bubblesortmodule/bublesort.v",
+    "designs/opencores__bubblesortmodule/intgenerator.v",
+    "designs/opencores__bubblesortmodule/rungenerator.v",
+    "designs/opencores__bubblesortmodule/stageen.v"
+   ],
+   "incdirs": [
+    "designs/opencores__bubblesortmodule",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__ca_prng",
+  "papercuts_args": [
+   "designs/opencores__ca_prng/ca_prng.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__ca_prng",
+   "-I",
+   "includes",
+   "--reset",
+   "!reset_n",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__cavlc",
+  "papercuts_args": [
+   "designs/opencores__cavlc/cavlc_fsm.v",
+   "designs/opencores__cavlc/cavlc_len_gen.v",
+   "designs/opencores__cavlc/cavlc_read_levels.v",
+   "designs/opencores__cavlc/cavlc_read_run_befores.v",
+   "designs/opencores__cavlc/cavlc_read_total_coeffs.v",
+   "designs/opencores__cavlc/cavlc_read_total_zeros.v",
+   "designs/opencores__cavlc/cavlc_top.v",
+   "designs/opencores__cavlc/defines.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__cavlc",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst_n",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 71,
+  "reported": true,
+  "synthesis": {
+   "top": "cavlc_top",
+   "sources": [
+    "designs/opencores__cavlc/cavlc_fsm.v",
+    "designs/opencores__cavlc/cavlc_len_gen.v",
+    "designs/opencores__cavlc/cavlc_read_levels.v",
+    "designs/opencores__cavlc/cavlc_read_run_befores.v",
+    "designs/opencores__cavlc/cavlc_read_total_coeffs.v",
+    "designs/opencores__cavlc/cavlc_read_total_zeros.v",
+    "designs/opencores__cavlc/cavlc_top.v",
+    "designs/opencores__cavlc/defines.v"
+   ],
+   "incdirs": [
+    "designs/opencores__cavlc",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__configurable_crc_core",
+  "papercuts_args": [
+   "designs/opencores__configurable_crc_core/cfg_crc.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__configurable_crc_core",
+   "-I",
+   "includes",
+   "--reset",
+   "rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__cr_div",
+  "papercuts_args": [
+   "designs/opencores__cr_div/cr_div.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__cr_div",
+   "-I",
+   "includes",
+   "--reset",
+   "rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 3,
+  "reported": true,
+  "synthesis": {
+   "top": "cr_div",
+   "sources": [
+    "designs/opencores__cr_div/cr_div.v"
+   ],
+   "incdirs": [
+    "designs/opencores__cr_div",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "opencores__datetime",
+  "papercuts_args": [
+   "designs/opencores__datetime/Datetime.v",
+   "designs/opencores__datetime/edge_det.v",
+   "designs/opencores__datetime/sync2s.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__datetime",
+   "-I",
+   "includes",
+   "--reset",
+   "rst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 10,
+  "reported": true,
+  "synthesis": {
+   "top": "Datetime",
+   "sources": [
+    "designs/opencores__datetime/Datetime.v",
+    "designs/opencores__datetime/edge_det.v",
+    "designs/opencores__datetime/sync2s.v"
+   ],
+   "incdirs": [
+    "designs/opencores__datetime",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__des-area__des",
+  "papercuts_args": [
+   "designs/opencores__des-area__des/crp.v",
+   "designs/opencores__des-area__des/des.v",
+   "designs/opencores__des-area__des/key_sel.v",
+   "designs/opencores__des-area__des/sbox1.v",
+   "designs/opencores__des-area__des/sbox2.v",
+   "designs/opencores__des-area__des/sbox3.v",
+   "designs/opencores__des-area__des/sbox4.v",
+   "designs/opencores__des-area__des/sbox5.v",
+   "designs/opencores__des-area__des/sbox6.v",
+   "designs/opencores__des-area__des/sbox7.v",
+   "designs/opencores__des-area__des/sbox8.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__des-area__des",
+   "-I",
+   "includes",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__des-area__des3",
+  "papercuts_args": [
+   "designs/opencores__des-area__des3/crp.v",
+   "designs/opencores__des-area__des3/des3.v",
+   "designs/opencores__des-area__des3/key_sel3.v",
+   "designs/opencores__des-area__des3/sbox1.v",
+   "designs/opencores__des-area__des3/sbox2.v",
+   "designs/opencores__des-area__des3/sbox3.v",
+   "designs/opencores__des-area__des3/sbox4.v",
+   "designs/opencores__des-area__des3/sbox5.v",
+   "designs/opencores__des-area__des3/sbox6.v",
+   "designs/opencores__des-area__des3/sbox7.v",
+   "designs/opencores__des-area__des3/sbox8.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__des-area__des3",
+   "-I",
+   "includes",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__double_fpu",
+  "papercuts_args": [
+   "designs/opencores__double_fpu/fpu_add.v",
+   "designs/opencores__double_fpu/fpu_div.v",
+   "designs/opencores__double_fpu/fpu_double.v",
+   "designs/opencores__double_fpu/fpu_exceptions.v",
+   "designs/opencores__double_fpu/fpu_mul.v",
+   "designs/opencores__double_fpu/fpu_round.v",
+   "designs/opencores__double_fpu/fpu_sub.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__double_fpu",
+   "-I",
+   "includes",
+   "--reset",
+   "rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 51,
+  "reported": true,
+  "synthesis": {
+   "top": "fpu",
+   "sources": [
+    "designs/opencores__double_fpu/fpu_add.v",
+    "designs/opencores__double_fpu/fpu_div.v",
+    "designs/opencores__double_fpu/fpu_double.v",
+    "designs/opencores__double_fpu/fpu_exceptions.v",
+    "designs/opencores__double_fpu/fpu_mul.v",
+    "designs/opencores__double_fpu/fpu_round.v",
+    "designs/opencores__double_fpu/fpu_sub.v"
+   ],
+   "incdirs": [
+    "designs/opencores__double_fpu",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "opencores__dpsfmnce",
+  "papercuts_args": [
+   "designs/opencores__dpsfmnce/DPSFnmCE.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__dpsfmnce",
+   "-I",
+   "includes",
+   "--reset",
+   "Rst",
+   "--clock",
+   "Clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__fast_antilog",
+  "papercuts_args": [
+   "designs/opencores__fast_antilog/AntiLog2.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__fast_antilog",
+   "-I",
+   "includes",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__fht",
+  "papercuts_args": [
+   "designs/opencores__fht/fht.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__fht",
+   "-I",
+   "includes",
+   "--reset",
+   "!reset",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 4,
+  "reported": true,
+  "synthesis": {
+   "top": "fht",
+   "sources": [
+    "designs/opencores__fht/fht.v"
+   ],
+   "incdirs": [
+    "designs/opencores__fht",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__fixed_point_arithmetic_parameterized",
+  "papercuts_args": [
+   "designs/opencores__fixed_point_arithmetic_parameterized/qadd.v",
+   "designs/opencores__fixed_point_arithmetic_parameterized/qdiv.v",
+   "designs/opencores__fixed_point_arithmetic_parameterized/qmult.v",
+   "designs/opencores__fixed_point_arithmetic_parameterized/qtwosComp.v",
+   "designs/opencores__fixed_point_arithmetic_parameterized/top.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__fixed_point_arithmetic_parameterized",
+   "-I",
+   "includes",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 9,
+  "reported": true,
+  "synthesis": {
+   "top": "top",
+   "sources": [
+    "designs/opencores__fixed_point_arithmetic_parameterized/qadd.v",
+    "designs/opencores__fixed_point_arithmetic_parameterized/qdiv.v",
+    "designs/opencores__fixed_point_arithmetic_parameterized/qmult.v",
+    "designs/opencores__fixed_point_arithmetic_parameterized/qtwosComp.v",
+    "designs/opencores__fixed_point_arithmetic_parameterized/top.v"
+   ],
+   "incdirs": [
+    "designs/opencores__fixed_point_arithmetic_parameterized",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__fpga-median",
+  "papercuts_args": [
+   "designs/opencores__fpga-median/common_network.v",
+   "designs/opencores__fpga-median/dff_3_pipe.v",
+   "designs/opencores__fpga-median/median.v",
+   "designs/opencores__fpga-median/node.v",
+   "designs/opencores__fpga-median/pixel_network.v",
+   "designs/opencores__fpga-median/state_machine.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__fpga-median",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst_n",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 272,
+  "reported": true,
+  "synthesis": {
+   "top": "median",
+   "sources": [
+    "designs/opencores__fpga-median/common_network.v",
+    "designs/opencores__fpga-median/dff_3_pipe.v",
+    "designs/opencores__fpga-median/median.v",
+    "designs/opencores__fpga-median/node.v",
+    "designs/opencores__fpga-median/pixel_network.v",
+    "designs/opencores__fpga-median/state_machine.v"
+   ],
+   "incdirs": [
+    "designs/opencores__fpga-median",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__gost28147-89__cfb",
+  "papercuts_args": [
+   "designs/opencores__gost28147-89__cfb/gost89_cfb.v",
+   "designs/opencores__gost28147-89__cfb/gost89_ecb.v",
+   "designs/opencores__gost28147-89__cfb/gost89_round.v",
+   "designs/opencores__gost28147-89__cfb/gost89_sbox.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__gost28147-89__cfb",
+   "-I",
+   "includes",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 3,
+  "reported": true,
+  "synthesis": {
+   "top": "gost89_cfb",
+   "sources": [
+    "designs/opencores__gost28147-89__cfb/gost89_cfb.v",
+    "designs/opencores__gost28147-89__cfb/gost89_ecb.v",
+    "designs/opencores__gost28147-89__cfb/gost89_round.v",
+    "designs/opencores__gost28147-89__cfb/gost89_sbox.v"
+   ],
+   "incdirs": [
+    "designs/opencores__gost28147-89__cfb",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__gost28147-89__ecb",
+  "papercuts_args": [
+   "designs/opencores__gost28147-89__ecb/gost89_ecb.v",
+   "designs/opencores__gost28147-89__ecb/gost89_round.v",
+   "designs/opencores__gost28147-89__ecb/gost89_sbox.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__gost28147-89__ecb",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 3,
+  "reported": true,
+  "synthesis": {
+   "top": "gost89_ecb",
+   "sources": [
+    "designs/opencores__gost28147-89__ecb/gost89_ecb.v",
+    "designs/opencores__gost28147-89__ecb/gost89_round.v",
+    "designs/opencores__gost28147-89__ecb/gost89_sbox.v"
+   ],
+   "incdirs": [
+    "designs/opencores__gost28147-89__ecb",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__gost28147-89__mac",
+  "papercuts_args": [
+   "designs/opencores__gost28147-89__mac/gost89_mac.v",
+   "designs/opencores__gost28147-89__mac/gost89_round.v",
+   "designs/opencores__gost28147-89__mac/gost89_sbox.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__gost28147-89__mac",
+   "-I",
+   "includes",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 2,
+  "reported": true,
+  "synthesis": {
+   "top": "gost89_mac",
+   "sources": [
+    "designs/opencores__gost28147-89__mac/gost89_mac.v",
+    "designs/opencores__gost28147-89__mac/gost89_round.v",
+    "designs/opencores__gost28147-89__mac/gost89_sbox.v"
+   ],
+   "incdirs": [
+    "designs/opencores__gost28147-89__mac",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__i2c",
+  "papercuts_args": [
+   "designs/opencores__i2c/i2c_master_bit_ctrl.v",
+   "designs/opencores__i2c/i2c_master_byte_ctrl.v",
+   "designs/opencores__i2c/i2c_master_defines.v",
+   "designs/opencores__i2c/i2c_master_top.v",
+   "designs/opencores__i2c/timescale.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__i2c",
+   "-I",
+   "includes",
+   "--reset",
+   "wb_rst_i",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 15,
+  "reported": true,
+  "synthesis": {
+   "top": "i2c_master_top",
+   "sources": [
+    "designs/opencores__i2c/i2c_master_bit_ctrl.v",
+    "designs/opencores__i2c/i2c_master_byte_ctrl.v",
+    "designs/opencores__i2c/i2c_master_defines.v",
+    "designs/opencores__i2c/i2c_master_top.v",
+    "designs/opencores__i2c/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__i2c",
+    "includes"
+   ],
+   "fc_clocks": [
+    "wb_clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__i2c_to_wb",
+  "papercuts_args": [
+   "designs/opencores__i2c_to_wb/glitch_filter.v",
+   "designs/opencores__i2c_to_wb/i2c_to_wb_config.v",
+   "designs/opencores__i2c_to_wb/i2c_to_wb_fsm.v",
+   "designs/opencores__i2c_to_wb/i2c_to_wb_if.v",
+   "designs/opencores__i2c_to_wb/i2c_to_wb_top.v",
+   "designs/opencores__i2c_to_wb/timescale.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__i2c_to_wb",
+   "-I",
+   "includes",
+   "--reset",
+   "wb_rst_i",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 11,
+  "reported": true,
+  "synthesis": {
+   "top": "i2c_to_wb_top",
+   "sources": [
+    "designs/opencores__i2c_to_wb/glitch_filter.v",
+    "designs/opencores__i2c_to_wb/i2c_to_wb_config.v",
+    "designs/opencores__i2c_to_wb/i2c_to_wb_fsm.v",
+    "designs/opencores__i2c_to_wb/i2c_to_wb_if.v",
+    "designs/opencores__i2c_to_wb/i2c_to_wb_top.v",
+    "designs/opencores__i2c_to_wb/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__i2c_to_wb",
+    "includes"
+   ],
+   "fc_clocks": [
+    "wb_clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__ima_adpcm_dec",
+  "papercuts_args": [
+   "designs/opencores__ima_adpcm_dec/ima_adpcm_dec.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__ima_adpcm_dec",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clock",
+   "--const-priority"
+  ],
+  "cuts_kept": 2,
+  "reported": true,
+  "synthesis": {
+   "top": "ima_adpcm_dec",
+   "sources": [
+    "designs/opencores__ima_adpcm_dec/ima_adpcm_dec.v"
+   ],
+   "incdirs": [
+    "designs/opencores__ima_adpcm_dec",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clock"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__ima_adpcm_enc",
+  "papercuts_args": [
+   "designs/opencores__ima_adpcm_enc/ima_adpcm_enc.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__ima_adpcm_enc",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clock",
+   "--const-priority"
+  ],
+  "cuts_kept": 1,
+  "reported": true,
+  "synthesis": {
+   "top": "ima_adpcm_enc",
+   "sources": [
+    "designs/opencores__ima_adpcm_enc/ima_adpcm_enc.v"
+   ],
+   "incdirs": [
+    "designs/opencores__ima_adpcm_enc",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clock"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__mesi_isc",
+  "papercuts_args": [
+   "designs/opencores__mesi_isc/mesi_isc.v",
+   "designs/opencores__mesi_isc/mesi_isc_basic_fifo.v",
+   "designs/opencores__mesi_isc/mesi_isc_breq_fifos.v",
+   "designs/opencores__mesi_isc/mesi_isc_breq_fifos_cntl.v",
+   "designs/opencores__mesi_isc/mesi_isc_broad.v",
+   "designs/opencores__mesi_isc/mesi_isc_broad_cntl.v",
+   "designs/opencores__mesi_isc/mesi_isc_define.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__mesi_isc",
+   "-I",
+   "includes",
+   "--reset",
+   "rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 65,
+  "reported": true,
+  "synthesis": {
+   "top": "mesi_isc",
+   "sources": [
+    "designs/opencores__mesi_isc/mesi_isc.v",
+    "designs/opencores__mesi_isc/mesi_isc_basic_fifo.v",
+    "designs/opencores__mesi_isc/mesi_isc_breq_fifos.v",
+    "designs/opencores__mesi_isc/mesi_isc_breq_fifos_cntl.v",
+    "designs/opencores__mesi_isc/mesi_isc_broad.v",
+    "designs/opencores__mesi_isc/mesi_isc_broad_cntl.v",
+    "designs/opencores__mesi_isc/mesi_isc_define.v"
+   ],
+   "incdirs": [
+    "designs/opencores__mesi_isc",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__mips_16",
+  "papercuts_args": [
+   "designs/opencores__mips_16/EX_stage.v",
+   "designs/opencores__mips_16/ID_stage.v",
+   "designs/opencores__mips_16/IF_stage.v",
+   "designs/opencores__mips_16/MEM_stage.v",
+   "designs/opencores__mips_16/WB_stage.v",
+   "designs/opencores__mips_16/alu.v",
+   "designs/opencores__mips_16/data_mem.v",
+   "designs/opencores__mips_16/hazard_detection_unit.v",
+   "designs/opencores__mips_16/instruction_mem.v",
+   "designs/opencores__mips_16/mips_16_core_top.v",
+   "designs/opencores__mips_16/mips_16_defs.v",
+   "designs/opencores__mips_16/register_file.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__mips_16",
+   "-I",
+   "includes",
+   "--reset",
+   "rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 4,
+  "reported": true,
+  "synthesis": {
+   "top": "mips_16_core_top",
+   "sources": [
+    "designs/opencores__mips_16/EX_stage.v",
+    "designs/opencores__mips_16/ID_stage.v",
+    "designs/opencores__mips_16/IF_stage.v",
+    "designs/opencores__mips_16/MEM_stage.v",
+    "designs/opencores__mips_16/WB_stage.v",
+    "designs/opencores__mips_16/alu.v",
+    "designs/opencores__mips_16/data_mem.v",
+    "designs/opencores__mips_16/hazard_detection_unit.v",
+    "designs/opencores__mips_16/instruction_mem.v",
+    "designs/opencores__mips_16/mips_16_core_top.v",
+    "designs/opencores__mips_16/mips_16_defs.v",
+    "designs/opencores__mips_16/register_file.v"
+   ],
+   "incdirs": [
+    "designs/opencores__mips_16",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__mmuart",
+  "papercuts_args": [
+   "designs/opencores__mmuart/uart.v",
+   "designs/opencores__mmuart/uart_transceiver.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__mmuart",
+   "-I",
+   "includes",
+   "--reset",
+   "sys_rst",
+   "--clock",
+   "sys_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__mode3_calc",
+  "papercuts_args": [
+   "designs/opencores__mode3_calc/mod3.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__mode3_calc",
+   "-I",
+   "includes",
+   "--const-priority"
+  ],
+  "cuts_kept": 17,
+  "reported": true,
+  "synthesis": {
+   "top": "mod3",
+   "sources": [
+    "designs/opencores__mode3_calc/mod3.v"
+   ],
+   "incdirs": [
+    "designs/opencores__mode3_calc",
+    "includes"
+   ],
+   "fc_clocks": [],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__next186",
+  "papercuts_args": [
+   "designs/opencores__next186/Next186_ALU.v",
+   "designs/opencores__next186/Next186_BIU_2T_delayread.v",
+   "designs/opencores__next186/Next186_CPU.v",
+   "designs/opencores__next186/Next186_Regs.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__next186",
+   "-I",
+   "includes",
+   "--top",
+   "Next186_CPU",
+   "--reset",
+   "RST",
+   "--clock",
+   "CLK",
+   "--const-priority"
+  ],
+  "cuts_kept": 5,
+  "reported": true,
+  "synthesis": {
+   "top": "Next186_CPU",
+   "sources": [
+    "designs/opencores__next186/Next186_ALU.v",
+    "designs/opencores__next186/Next186_BIU_2T_delayread.v",
+    "designs/opencores__next186/Next186_CPU.v",
+    "designs/opencores__next186/Next186_Regs.v"
+   ],
+   "incdirs": [
+    "designs/opencores__next186",
+    "includes"
+   ],
+   "fc_clocks": [
+    "CLK"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__nextz80",
+  "papercuts_args": [
+   "designs/opencores__nextz80/NextZ80ALU.v",
+   "designs/opencores__nextz80/NextZ80CPU.v",
+   "designs/opencores__nextz80/NextZ80Reg.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__nextz80",
+   "-I",
+   "includes",
+   "--reset",
+   "RESET",
+   "--clock",
+   "CLK",
+   "--const-priority"
+  ],
+  "cuts_kept": 3,
+  "reported": true,
+  "synthesis": {
+   "top": "NextZ80",
+   "sources": [
+    "designs/opencores__nextz80/NextZ80ALU.v",
+    "designs/opencores__nextz80/NextZ80CPU.v",
+    "designs/opencores__nextz80/NextZ80Reg.v"
+   ],
+   "incdirs": [
+    "designs/opencores__nextz80",
+    "includes"
+   ],
+   "fc_clocks": [
+    "CLK"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__oc54x",
+  "papercuts_args": [
+   "designs/opencores__oc54x/oc54_acc.v",
+   "designs/opencores__oc54x/oc54_alu.v",
+   "designs/opencores__oc54x/oc54_alu_defines.v",
+   "designs/opencores__oc54x/oc54_bshft.v",
+   "designs/opencores__oc54x/oc54_cpu.v",
+   "designs/opencores__oc54x/oc54_cssu.v",
+   "designs/opencores__oc54x/oc54_exp.v",
+   "designs/opencores__oc54x/oc54_mac.v",
+   "designs/opencores__oc54x/oc54_treg.v",
+   "designs/opencores__oc54x/timescale.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__oc54x",
+   "-I",
+   "includes",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 5,
+  "reported": true,
+  "synthesis": {
+   "top": "oc54_cpu",
+   "sources": [
+    "designs/opencores__oc54x/oc54_acc.v",
+    "designs/opencores__oc54x/oc54_alu.v",
+    "designs/opencores__oc54x/oc54_alu_defines.v",
+    "designs/opencores__oc54x/oc54_bshft.v",
+    "designs/opencores__oc54x/oc54_cpu.v",
+    "designs/opencores__oc54x/oc54_cssu.v",
+    "designs/opencores__oc54x/oc54_exp.v",
+    "designs/opencores__oc54x/oc54_mac.v",
+    "designs/opencores__oc54x/oc54_treg.v",
+    "designs/opencores__oc54x/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__oc54x",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__osdvu",
+  "papercuts_args": [
+   "designs/opencores__osdvu/uart.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__osdvu",
+   "-I",
+   "includes",
+   "--reset",
+   "rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 1,
+  "reported": true,
+  "synthesis": {
+   "top": "uart",
+   "sources": [
+    "designs/opencores__osdvu/uart.v"
+   ],
+   "incdirs": [
+    "designs/opencores__osdvu",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__p16c5x",
+  "papercuts_args": [
+   "designs/opencores__p16c5x/P16C5x.v",
+   "designs/opencores__p16c5x/P16C5x_ALU.v",
+   "designs/opencores__p16c5x/P16C5x_IDec.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__p16c5x",
+   "-I",
+   "includes",
+   "--clock",
+   "Clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 5,
+  "reported": true,
+  "synthesis": {
+   "top": "P16C5x",
+   "sources": [
+    "designs/opencores__p16c5x/P16C5x.v",
+    "designs/opencores__p16c5x/P16C5x_ALU.v",
+    "designs/opencores__p16c5x/P16C5x_IDec.v"
+   ],
+   "incdirs": [
+    "designs/opencores__p16c5x",
+    "includes"
+   ],
+   "fc_clocks": [
+    "Clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__pid_controller",
+  "papercuts_args": [
+   "designs/opencores__pid_controller/16x16bit_multiplier_pipelined.v",
+   "designs/opencores__pid_controller/CLA_fixed.v",
+   "designs/opencores__pid_controller/PID.v",
+   "designs/opencores__pid_controller/PID_defines.v",
+   "designs/opencores__pid_controller/booth.v",
+   "-e",
+   "-j",
+   "2",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__pid_controller",
+   "-I",
+   "includes",
+   "--reset",
+   "i_rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "i_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 117,
+  "reported": true,
+  "synthesis": {
+   "top": "PID",
+   "sources": [
+    "designs/opencores__pid_controller/16x16bit_multiplier_pipelined.v",
+    "designs/opencores__pid_controller/CLA_fixed.v",
+    "designs/opencores__pid_controller/PID.v",
+    "designs/opencores__pid_controller/PID_defines.v",
+    "designs/opencores__pid_controller/booth.v"
+   ],
+   "incdirs": [
+    "designs/opencores__pid_controller",
+    "includes"
+   ],
+   "fc_clocks": [
+    "i_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__pipelined_fft_64",
+  "papercuts_args": [
+   "designs/opencores__pipelined_fft_64/WROM64.v",
+   "designs/opencores__pipelined_fft_64/bufram64c1.v",
+   "designs/opencores__pipelined_fft_64/cnorm.v",
+   "designs/opencores__pipelined_fft_64/fft8.v",
+   "designs/opencores__pipelined_fft_64/mpu707.v",
+   "designs/opencores__pipelined_fft_64/ram2x64c_1.v",
+   "designs/opencores__pipelined_fft_64/ram64.v",
+   "designs/opencores__pipelined_fft_64/rotator64_v.v",
+   "designs/opencores__pipelined_fft_64/usfft64_2b.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__pipelined_fft_64",
+   "-I",
+   "includes",
+   "--top",
+   "USFFT64_2B",
+   "--reset",
+   "RST",
+   "--jasper-bbox-array",
+   "131072",
+   "-I",
+   "extra_includes/opencores__pipelined_fft_64",
+   "--clock",
+   "CLK",
+   "--const-priority"
+  ],
+  "cuts_kept": 43,
+  "reported": true,
+  "synthesis": {
+   "top": "USFFT64_2B",
+   "sources": [
+    "designs/opencores__pipelined_fft_64/WROM64.v",
+    "designs/opencores__pipelined_fft_64/bufram64c1.v",
+    "designs/opencores__pipelined_fft_64/cnorm.v",
+    "designs/opencores__pipelined_fft_64/fft8.v",
+    "designs/opencores__pipelined_fft_64/mpu707.v",
+    "designs/opencores__pipelined_fft_64/ram2x64c_1.v",
+    "designs/opencores__pipelined_fft_64/ram64.v",
+    "designs/opencores__pipelined_fft_64/rotator64_v.v",
+    "designs/opencores__pipelined_fft_64/usfft64_2b.v"
+   ],
+   "incdirs": [
+    "designs/opencores__pipelined_fft_64",
+    "includes",
+    "extra_includes/opencores__pipelined_fft_64"
+   ],
+   "fc_clocks": [
+    "CLK"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "opencores__present_encryptor",
+  "papercuts_args": [
+   "designs/opencores__present_encryptor/key_update.v",
+   "designs/opencores__present_encryptor/permutation.v",
+   "designs/opencores__present_encryptor/present_encryptor_top.v",
+   "designs/opencores__present_encryptor/sbox.v",
+   "designs/opencores__present_encryptor/sub_per.v",
+   "designs/opencores__present_encryptor/substitution.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__present_encryptor",
+   "-I",
+   "includes",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 2,
+  "reported": true,
+  "synthesis": {
+   "top": "present_encryptor_top",
+   "sources": [
+    "designs/opencores__present_encryptor/key_update.v",
+    "designs/opencores__present_encryptor/permutation.v",
+    "designs/opencores__present_encryptor/present_encryptor_top.v",
+    "designs/opencores__present_encryptor/sbox.v",
+    "designs/opencores__present_encryptor/sub_per.v",
+    "designs/opencores__present_encryptor/substitution.v"
+   ],
+   "incdirs": [
+    "designs/opencores__present_encryptor",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__ps2",
+  "papercuts_args": [
+   "designs/opencores__ps2/ps2_defines.v",
+   "designs/opencores__ps2/ps2_io_ctrl.v",
+   "designs/opencores__ps2/ps2_keyboard.v",
+   "designs/opencores__ps2/ps2_mouse.v",
+   "designs/opencores__ps2/ps2_top.v",
+   "designs/opencores__ps2/ps2_translation_table.v",
+   "designs/opencores__ps2/ps2_wb_if.v",
+   "designs/opencores__ps2/timescale.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__ps2",
+   "-I",
+   "includes",
+   "--top",
+   "ps2_top",
+   "--reset",
+   "wb_rst_i",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 45,
+  "reported": true,
+  "synthesis": {
+   "top": "ps2_top",
+   "sources": [
+    "designs/opencores__ps2/ps2_defines.v",
+    "designs/opencores__ps2/ps2_io_ctrl.v",
+    "designs/opencores__ps2/ps2_keyboard.v",
+    "designs/opencores__ps2/ps2_mouse.v",
+    "designs/opencores__ps2/ps2_top.v",
+    "designs/opencores__ps2/ps2_translation_table.v",
+    "designs/opencores__ps2/ps2_wb_if.v",
+    "designs/opencores__ps2/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__ps2",
+    "includes"
+   ],
+   "fc_clocks": [
+    "wb_clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__ptc",
+  "papercuts_args": [
+   "designs/opencores__ptc/ptc_defines.v",
+   "designs/opencores__ptc/ptc_top.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__ptc",
+   "-I",
+   "includes",
+   "--reset",
+   "wb_rst_i",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 2,
+  "reported": true,
+  "synthesis": {
+   "top": "ptc_top",
+   "sources": [
+    "designs/opencores__ptc/ptc_defines.v",
+    "designs/opencores__ptc/ptc_top.v"
+   ],
+   "incdirs": [
+    "designs/opencores__ptc",
+    "includes"
+   ],
+   "fc_clocks": [
+    "wb_clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__rtc",
+  "papercuts_args": [
+   "designs/opencores__rtc/rtc_defines.v",
+   "designs/opencores__rtc/rtc_top.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__rtc",
+   "-I",
+   "includes",
+   "--reset",
+   "wb_rst_i",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 26,
+  "reported": true,
+  "synthesis": {
+   "top": "rtc_top",
+   "sources": [
+    "designs/opencores__rtc/rtc_defines.v",
+    "designs/opencores__rtc/rtc_top.v"
+   ],
+   "incdirs": [
+    "designs/opencores__rtc",
+    "includes"
+   ],
+   "fc_clocks": [
+    "wb_clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__rtfsimpleuart",
+  "papercuts_args": [
+   "designs/opencores__rtfsimpleuart/edge_det.v",
+   "designs/opencores__rtfsimpleuart/rtfSimpleUart.v",
+   "designs/opencores__rtfsimpleuart/rtfSimpleUartRx.v",
+   "designs/opencores__rtfsimpleuart/rtfSimpleUartTx.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__rtfsimpleuart",
+   "-I",
+   "includes",
+   "--reset",
+   "rst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 47,
+  "reported": true,
+  "synthesis": {
+   "top": "rtfSimpleUart",
+   "sources": [
+    "designs/opencores__rtfsimpleuart/edge_det.v",
+    "designs/opencores__rtfsimpleuart/rtfSimpleUart.v",
+    "designs/opencores__rtfsimpleuart/rtfSimpleUartRx.v",
+    "designs/opencores__rtfsimpleuart/rtfSimpleUartTx.v"
+   ],
+   "incdirs": [
+    "designs/opencores__rtfsimpleuart",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__sasc",
+  "papercuts_args": [
+   "designs/opencores__sasc/sasc_brg.v",
+   "designs/opencores__sasc/sasc_fifo4.v",
+   "designs/opencores__sasc/sasc_top.v",
+   "designs/opencores__sasc/timescale.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__sasc",
+   "-I",
+   "includes",
+   "--top",
+   "sasc_top",
+   "--reset",
+   "!rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 16,
+  "reported": true,
+  "synthesis": {
+   "top": "sasc_top",
+   "sources": [
+    "designs/opencores__sasc/sasc_brg.v",
+    "designs/opencores__sasc/sasc_fifo4.v",
+    "designs/opencores__sasc/sasc_top.v",
+    "designs/opencores__sasc/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__sasc",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__scalable_arbiter__demo_filters",
+  "papercuts_args": [
+   "designs/opencores__scalable_arbiter__demo_filters/debouncer.v",
+   "designs/opencores__scalable_arbiter__demo_filters/demo_filters.v",
+   "designs/opencores__scalable_arbiter__demo_filters/functions.v",
+   "designs/opencores__scalable_arbiter__demo_filters/pulser.v",
+   "designs/opencores__scalable_arbiter__demo_filters/stretcher.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__scalable_arbiter__demo_filters",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clock",
+   "--const-priority"
+  ],
+  "cuts_kept": 79,
+  "reported": true,
+  "synthesis": {
+   "top": "demo_filters",
+   "sources": [
+    "designs/opencores__scalable_arbiter__demo_filters/debouncer.v",
+    "designs/opencores__scalable_arbiter__demo_filters/demo_filters.v",
+    "designs/opencores__scalable_arbiter__demo_filters/functions.v",
+    "designs/opencores__scalable_arbiter__demo_filters/pulser.v",
+    "designs/opencores__scalable_arbiter__demo_filters/stretcher.v"
+   ],
+   "incdirs": [
+    "designs/opencores__scalable_arbiter__demo_filters",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clock"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__sha3_high_thro",
+  "papercuts_args": [
+   "designs/opencores__sha3_high_thro/f_permutation.v",
+   "designs/opencores__sha3_high_thro/keccak.v",
+   "designs/opencores__sha3_high_thro/padder.v",
+   "designs/opencores__sha3_high_thro/padder1.v",
+   "designs/opencores__sha3_high_thro/rconst2in1.v",
+   "designs/opencores__sha3_high_thro/round2in1.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__sha3_high_thro",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 11,
+  "reported": true,
+  "synthesis": {
+   "top": "keccak",
+   "sources": [
+    "designs/opencores__sha3_high_thro/f_permutation.v",
+    "designs/opencores__sha3_high_thro/keccak.v",
+    "designs/opencores__sha3_high_thro/padder.v",
+    "designs/opencores__sha3_high_thro/padder1.v",
+    "designs/opencores__sha3_high_thro/rconst2in1.v",
+    "designs/opencores__sha3_high_thro/round2in1.v"
+   ],
+   "incdirs": [
+    "designs/opencores__sha3_high_thro",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__sha3_low_thro",
+  "papercuts_args": [
+   "designs/opencores__sha3_low_thro/f_permutation.v",
+   "designs/opencores__sha3_low_thro/keccak.v",
+   "designs/opencores__sha3_low_thro/padder.v",
+   "designs/opencores__sha3_low_thro/padder1.v",
+   "designs/opencores__sha3_low_thro/rconst.v",
+   "designs/opencores__sha3_low_thro/round.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__sha3_low_thro",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 11,
+  "reported": true,
+  "synthesis": {
+   "top": "keccak",
+   "sources": [
+    "designs/opencores__sha3_low_thro/f_permutation.v",
+    "designs/opencores__sha3_low_thro/keccak.v",
+    "designs/opencores__sha3_low_thro/padder.v",
+    "designs/opencores__sha3_low_thro/padder1.v",
+    "designs/opencores__sha3_low_thro/rconst.v",
+    "designs/opencores__sha3_low_thro/round.v"
+   ],
+   "incdirs": [
+    "designs/opencores__sha3_low_thro",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__sha_core_1",
+  "papercuts_args": [
+   "designs/opencores__sha_core_1/sha1.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__sha_core_1",
+   "-I",
+   "includes",
+   "--reset",
+   "rst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 1,
+  "reported": true,
+  "synthesis": {
+   "top": "sha1",
+   "sources": [
+    "designs/opencores__sha_core_1/sha1.v"
+   ],
+   "incdirs": [
+    "designs/opencores__sha_core_1",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__sha_core_256",
+  "papercuts_args": [
+   "designs/opencores__sha_core_256/sha256.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__sha_core_256",
+   "-I",
+   "includes",
+   "--reset",
+   "rst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 1,
+  "reported": true,
+  "synthesis": {
+   "top": "sha256",
+   "sources": [
+    "designs/opencores__sha_core_256/sha256.v"
+   ],
+   "incdirs": [
+    "designs/opencores__sha_core_256",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "opencores__sha_core_512",
+  "papercuts_args": [
+   "designs/opencores__sha_core_512/sha512.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__sha_core_512",
+   "-I",
+   "includes",
+   "--reset",
+   "rst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 18,
+  "reported": true,
+  "synthesis": {
+   "top": "sha512",
+   "sources": [
+    "designs/opencores__sha_core_512/sha512.v"
+   ],
+   "incdirs": [
+    "designs/opencores__sha_core_512",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "opencores__signed_integer_divider",
+  "papercuts_args": [
+   "designs/opencores__signed_integer_divider/CLA_fixed.v",
+   "designs/opencores__signed_integer_divider/divider_dshift.v",
+   "designs/opencores__signed_integer_divider/shifter.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__signed_integer_divider",
+   "-I",
+   "includes",
+   "--top",
+   "divider_dshift",
+   "--reset",
+   "!i_rst",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "i_clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 582,
+  "reported": true,
+  "synthesis": {
+   "top": "divider_dshift",
+   "sources": [
+    "designs/opencores__signed_integer_divider/CLA_fixed.v",
+    "designs/opencores__signed_integer_divider/divider_dshift.v",
+    "designs/opencores__signed_integer_divider/shifter.v"
+   ],
+   "incdirs": [
+    "designs/opencores__signed_integer_divider",
+    "includes"
+   ],
+   "fc_clocks": [
+    "i_clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__simple_spi",
+  "papercuts_args": [
+   "designs/opencores__simple_spi/fifo4.v",
+   "designs/opencores__simple_spi/simple_spi_top.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__simple_spi",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 6,
+  "reported": true,
+  "synthesis": {
+   "top": "simple_spi_top",
+   "sources": [
+    "designs/opencores__simple_spi/fifo4.v",
+    "designs/opencores__simple_spi/simple_spi_top.v"
+   ],
+   "incdirs": [
+    "designs/opencores__simple_spi",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__spi",
+  "papercuts_args": [
+   "designs/opencores__spi/spi_clgen.v",
+   "designs/opencores__spi/spi_defines.v",
+   "designs/opencores__spi/spi_shift.v",
+   "designs/opencores__spi/spi_top.v",
+   "designs/opencores__spi/timescale.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__spi",
+   "-I",
+   "includes",
+   "--reset",
+   "wb_rst_i",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 7,
+  "reported": true,
+  "synthesis": {
+   "top": "spi_top",
+   "sources": [
+    "designs/opencores__spi/spi_clgen.v",
+    "designs/opencores__spi/spi_defines.v",
+    "designs/opencores__spi/spi_shift.v",
+    "designs/opencores__spi/spi_top.v",
+    "designs/opencores__spi/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__spi",
+    "includes"
+   ],
+   "fc_clocks": [
+    "wb_clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__spicxif",
+  "papercuts_args": [
+   "designs/opencores__spicxif/SPIxIF.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__spicxif",
+   "-I",
+   "includes",
+   "--reset",
+   "Rst",
+   "--clock",
+   "Clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 17,
+  "reported": true,
+  "synthesis": {
+   "top": "SPIxIF",
+   "sources": [
+    "designs/opencores__spicxif/SPIxIF.v"
+   ],
+   "incdirs": [
+    "designs/opencores__spicxif",
+    "includes"
+   ],
+   "fc_clocks": [
+    "Clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__ss_pcm",
+  "papercuts_args": [
+   "designs/opencores__ss_pcm/pcm_slv_top.v",
+   "designs/opencores__ss_pcm/timescale.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__ss_pcm",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 2,
+  "reported": true,
+  "synthesis": {
+   "top": "pcm_slv_top",
+   "sources": [
+    "designs/opencores__ss_pcm/pcm_slv_top.v",
+    "designs/opencores__ss_pcm/timescale.v"
+   ],
+   "incdirs": [
+    "designs/opencores__ss_pcm",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__sub86",
+  "papercuts_args": [
+   "designs/opencores__sub86/sub86.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__sub86",
+   "-I",
+   "includes",
+   "--reset",
+   "!RSTN",
+   "--clock",
+   "CLK",
+   "--const-priority"
+  ],
+  "cuts_kept": 29,
+  "reported": true,
+  "synthesis": {
+   "top": "sub86",
+   "sources": [
+    "designs/opencores__sub86/sub86.v"
+   ],
+   "incdirs": [
+    "designs/opencores__sub86",
+    "includes"
+   ],
+   "fc_clocks": [
+    "CLK"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__tiny_aes_128",
+  "papercuts_args": [
+   "designs/opencores__tiny_aes_128/aes_128.v",
+   "designs/opencores__tiny_aes_128/round.v",
+   "designs/opencores__tiny_aes_128/table.v",
+   "-e",
+   "-j",
+   "2",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__tiny_aes_128",
+   "-I",
+   "includes",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__trigonometric_functions_in_double_fpu",
+  "papercuts_args": [
+   "designs/opencores__trigonometric_functions_in_double_fpu/cosecant.v",
+   "designs/opencores__trigonometric_functions_in_double_fpu/cosine.v",
+   "designs/opencores__trigonometric_functions_in_double_fpu/cotangent.v",
+   "designs/opencores__trigonometric_functions_in_double_fpu/divider.v",
+   "designs/opencores__trigonometric_functions_in_double_fpu/secant.v",
+   "designs/opencores__trigonometric_functions_in_double_fpu/sine.v",
+   "designs/opencores__trigonometric_functions_in_double_fpu/tangent.v",
+   "designs/opencores__trigonometric_functions_in_double_fpu/top.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__trigonometric_functions_in_double_fpu",
+   "-I",
+   "includes",
+   "--reset",
+   "rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 7,
+  "reported": true,
+  "synthesis": {
+   "top": "top",
+   "sources": [
+    "designs/opencores__trigonometric_functions_in_double_fpu/cosecant.v",
+    "designs/opencores__trigonometric_functions_in_double_fpu/cosine.v",
+    "designs/opencores__trigonometric_functions_in_double_fpu/cotangent.v",
+    "designs/opencores__trigonometric_functions_in_double_fpu/divider.v",
+    "designs/opencores__trigonometric_functions_in_double_fpu/secant.v",
+    "designs/opencores__trigonometric_functions_in_double_fpu/sine.v",
+    "designs/opencores__trigonometric_functions_in_double_fpu/tangent.v",
+    "designs/opencores__trigonometric_functions_in_double_fpu/top.v"
+   ],
+   "incdirs": [
+    "designs/opencores__trigonometric_functions_in_double_fpu",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__tv80_core",
+  "papercuts_args": [
+   "designs/opencores__tv80_core/tv80_alu.v",
+   "designs/opencores__tv80_core/tv80_core.v",
+   "designs/opencores__tv80_core/tv80_mcode.v",
+   "designs/opencores__tv80_core/tv80_reg.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__tv80_core",
+   "-I",
+   "includes",
+   "--reset",
+   "!reset_n",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 159,
+  "reported": true,
+  "synthesis": {
+   "top": "tv80_core",
+   "sources": [
+    "designs/opencores__tv80_core/tv80_alu.v",
+    "designs/opencores__tv80_core/tv80_core.v",
+    "designs/opencores__tv80_core/tv80_mcode.v",
+    "designs/opencores__tv80_core/tv80_reg.v"
+   ],
+   "incdirs": [
+    "designs/opencores__tv80_core",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__uart16550",
+  "papercuts_args": [
+   "designs/opencores__uart16550/raminfr.v",
+   "designs/opencores__uart16550/timescale.v",
+   "designs/opencores__uart16550/uart_debug_if.v",
+   "designs/opencores__uart16550/uart_defines.v",
+   "designs/opencores__uart16550/uart_receiver.v",
+   "designs/opencores__uart16550/uart_regs.v",
+   "designs/opencores__uart16550/uart_rfifo.v",
+   "designs/opencores__uart16550/uart_sync_flops.v",
+   "designs/opencores__uart16550/uart_tfifo.v",
+   "designs/opencores__uart16550/uart_top.v",
+   "designs/opencores__uart16550/uart_transmitter.v",
+   "designs/opencores__uart16550/uart_wb.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__uart16550",
+   "-I",
+   "includes",
+   "--reset",
+   "wb_rst_i",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 23,
+  "reported": true,
+  "synthesis": {
+   "top": "uart_top",
+   "sources": [
+    "designs/opencores__uart16550/raminfr.v",
+    "designs/opencores__uart16550/timescale.v",
+    "designs/opencores__uart16550/uart_debug_if.v",
+    "designs/opencores__uart16550/uart_defines.v",
+    "designs/opencores__uart16550/uart_receiver.v",
+    "designs/opencores__uart16550/uart_regs.v",
+    "designs/opencores__uart16550/uart_rfifo.v",
+    "designs/opencores__uart16550/uart_sync_flops.v",
+    "designs/opencores__uart16550/uart_tfifo.v",
+    "designs/opencores__uart16550/uart_top.v",
+    "designs/opencores__uart16550/uart_transmitter.v",
+    "designs/opencores__uart16550/uart_wb.v"
+   ],
+   "incdirs": [
+    "designs/opencores__uart16550",
+    "includes"
+   ],
+   "fc_clocks": [
+    "wb_clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__usb_phy",
+  "papercuts_args": [
+   "designs/opencores__usb_phy/usb_phy.v",
+   "designs/opencores__usb_phy/usb_rx_phy.v",
+   "designs/opencores__usb_phy/usb_tx_phy.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__usb_phy",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 29,
+  "reported": true,
+  "synthesis": {
+   "top": "usb_phy",
+   "sources": [
+    "designs/opencores__usb_phy/usb_phy.v",
+    "designs/opencores__usb_phy/usb_rx_phy.v",
+    "designs/opencores__usb_phy/usb_tx_phy.v"
+   ],
+   "incdirs": [
+    "designs/opencores__usb_phy",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__vga_lcd",
+  "papercuts_args": [
+   "designs/opencores__vga_lcd/generic_dpram.v",
+   "designs/opencores__vga_lcd/generic_spram.v",
+   "designs/opencores__vga_lcd/timescale.v",
+   "designs/opencores__vga_lcd/vga_clkgen.v",
+   "designs/opencores__vga_lcd/vga_colproc.v",
+   "designs/opencores__vga_lcd/vga_csm_pb.v",
+   "designs/opencores__vga_lcd/vga_cur_cregs.v",
+   "designs/opencores__vga_lcd/vga_curproc.v",
+   "designs/opencores__vga_lcd/vga_defines.v",
+   "designs/opencores__vga_lcd/vga_enh_top.v",
+   "designs/opencores__vga_lcd/vga_fifo.v",
+   "designs/opencores__vga_lcd/vga_fifo_dc.v",
+   "designs/opencores__vga_lcd/vga_pgen.v",
+   "designs/opencores__vga_lcd/vga_tgen.v",
+   "designs/opencores__vga_lcd/vga_vtim.v",
+   "designs/opencores__vga_lcd/vga_wb_master.v",
+   "designs/opencores__vga_lcd/vga_wb_slave.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__vga_lcd",
+   "-I",
+   "includes",
+   "--top",
+   "vga_enh_top",
+   "--reset",
+   "!rst_i",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "wb_clk_i",
+   "--clock",
+   "clk_p_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 331,
+  "reported": true,
+  "synthesis": {
+   "top": "vga_enh_top",
+   "sources": [
+    "designs/opencores__vga_lcd/generic_dpram.v",
+    "designs/opencores__vga_lcd/generic_spram.v",
+    "designs/opencores__vga_lcd/timescale.v",
+    "designs/opencores__vga_lcd/vga_clkgen.v",
+    "designs/opencores__vga_lcd/vga_colproc.v",
+    "designs/opencores__vga_lcd/vga_csm_pb.v",
+    "designs/opencores__vga_lcd/vga_cur_cregs.v",
+    "designs/opencores__vga_lcd/vga_curproc.v",
+    "designs/opencores__vga_lcd/vga_defines.v",
+    "designs/opencores__vga_lcd/vga_enh_top.v",
+    "designs/opencores__vga_lcd/vga_fifo.v",
+    "designs/opencores__vga_lcd/vga_fifo_dc.v",
+    "designs/opencores__vga_lcd/vga_pgen.v",
+    "designs/opencores__vga_lcd/vga_tgen.v",
+    "designs/opencores__vga_lcd/vga_vtim.v",
+    "designs/opencores__vga_lcd/vga_wb_master.v",
+    "designs/opencores__vga_lcd/vga_wb_slave.v"
+   ],
+   "incdirs": [
+    "designs/opencores__vga_lcd",
+    "includes"
+   ],
+   "fc_clocks": [
+    "wb_clk_i",
+    "clk_p_i"
+   ],
+   "fc_flow": "clocks"
+  }
+ },
+ {
+  "design": "opencores__video_systems_dct",
+  "papercuts_args": [
+   "designs/opencores__video_systems_dct/dct.v",
+   "designs/opencores__video_systems_dct/dct_cos_table.v",
+   "designs/opencores__video_systems_dct/dct_mac.v",
+   "designs/opencores__video_systems_dct/dct_syn.v",
+   "designs/opencores__video_systems_dct/dctu.v",
+   "designs/opencores__video_systems_dct/dctub.v",
+   "designs/opencores__video_systems_dct/fdct.v",
+   "designs/opencores__video_systems_dct/zigzag.v",
+   "-e",
+   "-j",
+   "6",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__video_systems_dct",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 201,
+  "reported": true,
+  "synthesis": {
+   "top": "dct_syn",
+   "sources": [
+    "designs/opencores__video_systems_dct/dct.v",
+    "designs/opencores__video_systems_dct/dct_cos_table.v",
+    "designs/opencores__video_systems_dct/dct_mac.v",
+    "designs/opencores__video_systems_dct/dct_syn.v",
+    "designs/opencores__video_systems_dct/dctu.v",
+    "designs/opencores__video_systems_dct/dctub.v",
+    "designs/opencores__video_systems_dct/fdct.v",
+    "designs/opencores__video_systems_dct/zigzag.v"
+   ],
+   "incdirs": [
+    "designs/opencores__video_systems_dct",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__video_systems_qnr",
+  "papercuts_args": [
+   "designs/opencores__video_systems_qnr/div_su.v",
+   "designs/opencores__video_systems_qnr/div_uu.v",
+   "designs/opencores__video_systems_qnr/jpeg_qnr.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__video_systems_qnr",
+   "-I",
+   "includes",
+   "--reset",
+   "!rst",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 21,
+  "reported": true,
+  "synthesis": {
+   "top": "jpeg_qnr",
+   "sources": [
+    "designs/opencores__video_systems_qnr/div_su.v",
+    "designs/opencores__video_systems_qnr/div_uu.v",
+    "designs/opencores__video_systems_qnr/jpeg_qnr.v"
+   ],
+   "incdirs": [
+    "designs/opencores__video_systems_qnr",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__watchdog",
+  "papercuts_args": [
+   "designs/opencores__watchdog/timescale.v",
+   "designs/opencores__watchdog/watchdog.v",
+   "designs/opencores__watchdog/watchdog_defines.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__watchdog",
+   "-I",
+   "includes",
+   "--reset",
+   "wb_rst_i",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__wb_conbus",
+  "papercuts_args": [
+   "designs/opencores__wb_conbus/wb_conbus_arb.v",
+   "designs/opencores__wb_conbus/wb_conbus_defines.v",
+   "designs/opencores__wb_conbus/wb_conbus_top.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__wb_conbus",
+   "-I",
+   "includes",
+   "--reset",
+   "rst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__wb_flash",
+  "papercuts_args": [
+   "designs/opencores__wb_flash/wb_flash.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__wb_flash",
+   "-I",
+   "includes",
+   "--reset",
+   "!nrst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__wb_lcd_ramless",
+  "papercuts_args": [
+   "designs/opencores__wb_lcd_ramless/delay_counter.v",
+   "designs/opencores__wb_lcd_ramless/lcd_defines.v",
+   "designs/opencores__wb_lcd_ramless/lcd_display.v",
+   "designs/opencores__wb_lcd_ramless/wb_lcd.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__wb_lcd_ramless",
+   "-I",
+   "includes",
+   "--reset",
+   "wb_rst_i",
+   "--clock",
+   "wb_clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "opencores__wb_to_amba",
+  "papercuts_args": [
+   "designs/opencores__wb_to_amba/wb_arm_phase_fsm.v",
+   "designs/opencores__wb_to_amba/wb_arm_slave_top.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__wb_to_amba",
+   "-I",
+   "includes",
+   "--reset",
+   "!ahb_hreset",
+   "--clock",
+   "ahb_hclk",
+   "--const-priority"
+  ],
+  "cuts_kept": 7,
+  "reported": true,
+  "synthesis": {
+   "top": "wb_arm_slave_top",
+   "sources": [
+    "designs/opencores__wb_to_amba/wb_arm_phase_fsm.v",
+    "designs/opencores__wb_to_amba/wb_arm_slave_top.v"
+   ],
+   "incdirs": [
+    "designs/opencores__wb_to_amba",
+    "includes"
+   ],
+   "fc_clocks": [
+    "ahb_hclk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "opencores__xtea",
+  "papercuts_args": [
+   "designs/opencores__xtea/xtea.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/opencores__xtea",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clock",
+   "--const-priority"
+  ],
+  "cuts_kept": 9,
+  "reported": true,
+  "synthesis": {
+   "top": "xtea",
+   "sources": [
+    "designs/opencores__xtea/xtea.v"
+   ],
+   "incdirs": [
+    "designs/opencores__xtea",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clock"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "vtr__ch_intrinsics_nolatches",
+  "papercuts_args": [
+   "designs/vtr__ch_intrinsics_nolatches/ch_intrinsics_nolatches.v",
+   "designs/vtr__ch_intrinsics_nolatches/primitives.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__ch_intrinsics_nolatches",
+   "-I",
+   "includes",
+   "--top",
+   "memset",
+   "--reset",
+   "reset",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 14,
+  "reported": true,
+  "synthesis": {
+   "top": "memset",
+   "sources": [
+    "designs/vtr__ch_intrinsics_nolatches/ch_intrinsics_nolatches.v",
+    "designs/vtr__ch_intrinsics_nolatches/primitives.v"
+   ],
+   "incdirs": [
+    "designs/vtr__ch_intrinsics_nolatches",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "vtr__diffeq1",
+  "papercuts_args": [
+   "designs/vtr__diffeq1/diffeq1.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__diffeq1",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "vtr__diffeq2",
+  "papercuts_args": [
+   "designs/vtr__diffeq2/diffeq2.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__diffeq2",
+   "-I",
+   "includes",
+   "--reset",
+   "reset",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 1,
+  "reported": true,
+  "synthesis": {
+   "top": "diffeq_f_systemC",
+   "sources": [
+    "designs/vtr__diffeq2/diffeq2.v"
+   ],
+   "incdirs": [
+    "designs/vtr__diffeq2",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "vtr__multiclock_output_and_latch",
+  "papercuts_args": [
+   "designs/vtr__multiclock_output_and_latch/multiclock_output_and_latch.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__multiclock_output_and_latch",
+   "-I",
+   "includes",
+   "--clock",
+   "clock0",
+   "--clock",
+   "clock1",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "vtr__multiclock_reader_writer",
+  "papercuts_args": [
+   "designs/vtr__multiclock_reader_writer/multiclock_reader_writer.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__multiclock_reader_writer",
+   "-I",
+   "includes",
+   "--clock",
+   "clock_reader_head",
+   "--clock",
+   "clock_writer_head",
+   "--const-priority"
+  ],
+  "cuts_kept": 4,
+  "reported": true,
+  "synthesis": {
+   "top": "multiclock_reader_writer",
+   "sources": [
+    "designs/vtr__multiclock_reader_writer/multiclock_reader_writer.v"
+   ],
+   "incdirs": [
+    "designs/vtr__multiclock_reader_writer",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clock_reader_head",
+    "clock_writer_head"
+   ],
+   "fc_flow": "clocks"
+  }
+ },
+ {
+  "design": "vtr__multiclock_separate_and_latch",
+  "papercuts_args": [
+   "designs/vtr__multiclock_separate_and_latch/multiclock_separate_and_latch.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__multiclock_separate_and_latch",
+   "-I",
+   "includes",
+   "--clock",
+   "clock1",
+   "--clock",
+   "clock2",
+   "--const-priority"
+  ],
+  "cuts_kept": 0,
+  "reported": false
+ },
+ {
+  "design": "vtr__raygentop_nolatches",
+  "papercuts_args": [
+   "designs/vtr__raygentop_nolatches/primitives.v",
+   "designs/vtr__raygentop_nolatches/raygentop_nolatches.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__raygentop_nolatches",
+   "-I",
+   "includes",
+   "--top",
+   "paj_raygentop_hierarchy_no_mem",
+   "--reset",
+   "globalreset",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "clk",
+   "--const-priority"
+  ],
+  "cuts_kept": 63,
+  "reported": true,
+  "synthesis": {
+   "top": "paj_raygentop_hierarchy_no_mem",
+   "sources": [
+    "designs/vtr__raygentop_nolatches/primitives.v",
+    "designs/vtr__raygentop_nolatches/raygentop_nolatches.v"
+   ],
+   "incdirs": [
+    "designs/vtr__raygentop_nolatches",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "vtr__sha",
+  "papercuts_args": [
+   "designs/vtr__sha/sha.v",
+   "-e",
+   "-j",
+   "1",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__sha",
+   "-I",
+   "includes",
+   "--reset",
+   "rst_i",
+   "--clock",
+   "clk_i",
+   "--const-priority"
+  ],
+  "cuts_kept": 6,
+  "reported": true,
+  "synthesis": {
+   "top": "sha1",
+   "sources": [
+    "designs/vtr__sha/sha.v"
+   ],
+   "incdirs": [
+    "designs/vtr__sha",
+    "includes"
+   ],
+   "fc_clocks": [
+    "clk_i"
+   ],
+   "fc_flow": "single"
+  }
+ },
+ {
+  "design": "vtr__stereovision2",
+  "papercuts_args": [
+   "designs/vtr__stereovision2/stereovision2.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__stereovision2",
+   "-I",
+   "includes",
+   "--reset",
+   "!reset",
+   "--jasper-bbox-array",
+   "131072",
+   "--clock",
+   "tm3_clk_v0",
+   "--const-priority"
+  ],
+  "cuts_kept": 364,
+  "reported": true,
+  "synthesis": {
+   "top": "sv_chip2_hierarchy_no_mem",
+   "sources": [
+    "designs/vtr__stereovision2/stereovision2.v"
+   ],
+   "incdirs": [
+    "designs/vtr__stereovision2",
+    "includes"
+   ],
+   "fc_clocks": [
+    "tm3_clk_v0"
+   ],
+   "fc_flow": "nofa"
+  }
+ },
+ {
+  "design": "vtr__stereovision3",
+  "papercuts_args": [
+   "designs/vtr__stereovision3/stereovision3.v",
+   "-e",
+   "-j",
+   "3",
+   "--fv-time-limit",
+   "600",
+   "-I",
+   "designs/vtr__stereovision3",
+   "-I",
+   "includes",
+   "--clock",
+   "tm3_clk_v0",
+   "--clock",
+   "tm3_clk_v2",
+   "--const-priority"
+  ],
+  "cuts_kept": 8,
+  "reported": true,
+  "synthesis": {
+   "top": "sv_chip3_hierarchy_no_mem",
+   "sources": [
+    "designs/vtr__stereovision3/stereovision3.v"
+   ],
+   "incdirs": [
+    "designs/vtr__stereovision3",
+    "includes"
+   ],
+   "fc_clocks": [
+    "tm3_clk_v0",
+    "tm3_clk_v2"
+   ],
+   "fc_flow": "clocks"
+  }
+ }
+]

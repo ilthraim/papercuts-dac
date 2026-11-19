@@ -1,0 +1,42 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "Sanitize",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-DSLANG_ASSERT_ENABLED -fsanitize=undefined,address -fno-sanitize-recover=undefined -fno-omit-frame-pointer -fno-common -Wno-deprecated-declarations -Wno-error=deprecated-declarations",
+        "SLANG_CLANG_TIDY": "true",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "Python_ROOT_DIR": "${sourceDir}/.venv",
+        "Python_FIND_VIRTUALENV": "ONLY"
+      }
+    },
+    {
+      "name": "Release",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_FLAGS": "-DSLANG_ASSERT_ENABLED -Wno-deprecated-declarations -Wno-error=deprecated-declarations",
+        "SLANG_CLANG_TIDY": "true",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "Python_ROOT_DIR": "${sourceDir}/.venv",
+        "Python_FIND_VIRTUALENV": "ONLY"
+      }
+
+    }
+  ],
+    "buildPresets": [
+    {
+      "name": "SanitizeParallel",
+      "configurePreset": "Sanitize",
+      "jobs": 96
+    },
+    {
+      "name": "ReleaseParallel",
+      "configurePreset": "Release",
+      "jobs": 96
+    }
+  ]
+}

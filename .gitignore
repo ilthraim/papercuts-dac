@@ -1,0 +1,37 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+build-release/
+dist/
+wheels/
+*.egg-info
+*.so
+*.pyi
+# pyslang package assembled by the build (copy_pyslang)
+python/pyslang/
+
+# Virtual environments
+.venv
+
+.vscode
+.uv_cache
+uv.toml
+
+# C++ build files
+.cache/
+
+#Jasper stuff
+jgproject
+traces
+*_jgproject
+
+# Output folders get really big
+outputs/
+.clangd
+build.log
+build.sh
+compile_commands.json
+
+# Miscellaneous
+prototype/
