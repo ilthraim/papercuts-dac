@@ -23,11 +23,6 @@ one cut and are the designs reported (`"reported": true` in `designs.json`):
   - `synthesis` (reported designs only): top, sources and include directories,
     and the Fusion Compiler clocks and flow variant (`synthesis/README.md`).
 
-A few files differ from their upstream versions so that every tool reads them.
-In fpga-median, i2c, mesi_isc and oc54x, lines that Fusion Compiler's reader
-rejects were edited, and each edited design was proven equivalent to its
-upstream RTL with Jasper. In i2c and vga_lcd, `// synopsys enum_state` comments
-that the reader also rejects were removed (comments only).
 
 ## Running papercuts on a design
 
@@ -47,10 +42,3 @@ arguments is how many checks ran at once for that design; raise or lower it to
 fit your machine and Jasper licenses (each Jasper check runs about 28 proof
 engines unless capped with `--jasper-engines`). The paper's runs used a
 600-second limit per check (`--fv-time-limit 600`).
-
-## Licenses
-
-The designs come from their public sources and keep their own licenses and
-copyright notices, which are left in the files. The PolyBench RTL was generated
-from the PolyBench/C kernels by Vitis HLS, whose output carries the tool's
-header.
