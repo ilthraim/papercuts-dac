@@ -52,14 +52,6 @@ set data_in [remove_from_collection [all_inputs] [get_ports -quiet $clock]]
 set_input_delay  -clock $clk_name 0 $data_in
 set_output_delay -clock $clk_name 0 [all_outputs]
 
-# Map, then size a core from the mapped area (sizing it from the unmapped netlist
-# under-estimates it and placement fails over-utilized), then coarse placement,
-# high-fanout buffering / DRC fixing and placement-aware re-optimization. At
-# logic_opto alone high-fanout nets are unbuffered (sha_core_512: -587 ns).
-# Stops before final_place: no legalization, CTS or routing; the clock is ideal.
-# The core is square at 70% utilization, with a 20 um minimum side: a design of
-# one or two cells gets a core narrower than a flop (single_ff: 6 um core,
-# 9.7 um sdfxtp_1) and placement fails (PLACE-006).
 compile_fusion -to logic_opto
 set_attribute [get_site_defs unit] is_default true
 set_attribute [get_site_defs unit] symmetry Y
